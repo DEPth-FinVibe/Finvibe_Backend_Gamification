@@ -1,0 +1,44 @@
+# 로컬 테스트용 프로필 (infra/docker-compose.yml 기준)
+# 실행 예시 (PowerShell): $env:SPRING_PROFILES_ACTIVE="local"; ./gradlew bootRun
+spring:
+  config:
+    import:
+      - optional:classpath:application-kafka.yml
+
+  datasource:
+    url: jdbc:mariadb://localhost:3306/finvibe
+    username: finvibe
+    password: finvibe
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: finvibe-boilerplate-local
+      properties:
+        spring.json.trusted.packages: "depth.finvibe.boilerplate.*"
+
+  mongodb:
+    uri: mongodb://localhost:27017/finvibe
+
+logging:
+  level:
+    root: info
+    depth.finvibe.boilerplate: debug
+
+security:
+  jwt:
+    hmac-secret: ${JWT_HMAC_SECRET:testsecret12312312313123123123}
