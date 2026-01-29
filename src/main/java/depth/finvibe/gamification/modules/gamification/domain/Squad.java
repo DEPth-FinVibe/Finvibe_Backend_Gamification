@@ -1,15 +1,15 @@
 package depth.finvibe.gamification.modules.gamification.domain;
 
-import java.util.UUID;
-
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import depth.finvibe.gamification.modules.gamification.domain.vo.Xp;
 import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
 
 @Entity
@@ -17,20 +17,17 @@ import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
 @Getter
-public class UserXpAward extends TimeStampedBaseEntity {
+public class Squad extends TimeStampedBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private UUID userId;
+    private String name;
 
-    @Embedded
-    private Xp xp;
+    private String region; // 예: 서울, 경기 등
 
-    public static UserXpAward of(UUID userId, Xp xp) {
-        return UserXpAward.builder()
-                .userId(userId)
-                .xp(xp)
-                .build();
+    public void updateInfo(String name, String region) {
+        this.name = name;
+        this.region = region;
     }
 }

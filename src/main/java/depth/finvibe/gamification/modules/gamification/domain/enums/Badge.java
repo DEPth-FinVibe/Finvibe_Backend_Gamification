@@ -3,6 +3,9 @@ package depth.finvibe.gamification.modules.gamification.domain.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+import java.util.List;
+
 @RequiredArgsConstructor
 @Getter
 public enum Badge {
@@ -16,4 +19,8 @@ public enum Badge {
     TOP_ONE_PERCENT_TRAINER("상위 1% 트레이너");
 
     private final String displayName;
+
+    public static List<Badge> getAllBadges() {
+        return Arrays.asList(values());
+    }
 }

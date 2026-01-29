@@ -35,4 +35,10 @@ public class Period {
                 .endDate(endDate)
                 .build();
     }
+
+    public static Period ofWeek(LocalDate anyDateInWeek) {
+        LocalDate startOfWeek = anyDateInWeek.minusDays(anyDateInWeek.getDayOfWeek().getValue() - 1);
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+        return Period.of(startOfWeek, endOfWeek);
+    }
 }

@@ -1,7 +1,5 @@
 package depth.finvibe.gamification.modules.gamification.domain;
 
-import java.util.UUID;
-
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,28 +7,33 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import depth.finvibe.gamification.modules.gamification.domain.vo.Xp;
 import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
+import java.time.LocalDate;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
 @Getter
-public class UserXpAward extends TimeStampedBaseEntity {
+public class SquadRankingHistory extends TimeStampedBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private UUID userId;
+    private Long squadId;
 
-    @Embedded
-    private Xp xp;
+    private Integer ranking;
 
-    public static UserXpAward of(UUID userId, Xp xp) {
-        return UserXpAward.builder()
-                .userId(userId)
-                .xp(xp)
+    private Long totalXp;
+
+    private LocalDate recordDate; // 기록 기준 날짜 (예: 매주 월요일)
+
+    public static SquadRankingHistory of(Long squadId, Integer ranking, Long totalXp) {
+        return SquadRankingHistory.builder()
+                .squadId(squadId)
+                .ranking(ranking)
+                .totalXp(totalXp)
+                .recordDate(LocalDate.now())
                 .build();
     }
 }

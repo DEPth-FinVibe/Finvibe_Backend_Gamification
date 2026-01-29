@@ -38,3 +38,4 @@ out/
 /.github/git-commit-instructions.md
 
 .env
+.cursor/rules/reply-rule.mdc
