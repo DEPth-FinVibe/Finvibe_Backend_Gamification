@@ -5,11 +5,11 @@ import java.util.UUID;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import depth.finvibe.gamification.modules.gamification.domain.vo.Xp;
 import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
 
 @Entity
@@ -17,20 +17,23 @@ import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
 @Getter
-public class UserXpAward extends TimeStampedBaseEntity {
+public class UserXp extends TimeStampedBaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private UUID userId;
 
-    @Embedded
-    private Xp xp;
+    @Builder.Default
+    private Long totalXp = 0L;
 
-    public static UserXpAward of(UUID userId, Xp xp) {
-        return UserXpAward.builder()
-                .userId(userId)
-                .xp(xp)
-                .build();
+    @Builder.Default
+    private Integer level = 1;
+
+    public void addXp(Long amount) {
+        this.totalXp += amount;
+        updateLevel();
+    }
+
+    private void updateLevel() {
+        // 간단한 레벨 계산 로직 (예: 1000 XP당 1레벨)
+        this.level = (int) (this.totalXp / 1000) + 1;
     }
 }

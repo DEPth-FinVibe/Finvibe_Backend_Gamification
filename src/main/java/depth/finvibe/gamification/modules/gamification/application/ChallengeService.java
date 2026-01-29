@@ -9,9 +9,10 @@ import depth.finvibe.gamification.modules.gamification.application.port.out.*;
 import depth.finvibe.gamification.shared.dto.XpRewardEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import depth.finvibe.gamification.modules.gamification.application.port.in.ChallengeCommandUseCase;
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallenge;
@@ -22,8 +23,6 @@ import depth.finvibe.gamification.modules.gamification.domain.vo.ChallengeCondit
 import depth.finvibe.gamification.modules.gamification.domain.vo.Period;
 import depth.finvibe.gamification.modules.gamification.domain.vo.Reward;
 import depth.finvibe.gamification.modules.gamification.dto.ChallengeDto;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 @RequiredArgsConstructor
@@ -33,8 +32,8 @@ public class ChallengeService implements ChallengeCommandUseCase {
     private final PersonalChallengeRepository personalChallengeRepository;
     private final MetricRepository metricRepository;
     private final PersonalChallengeRewardRepository personalChallengeRewardRepository;
-    private final XpRewardEventPublisher xpRewardEventPublisher;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final XpRewardEventPublisher xpRewardEventPublisher;
 
     @Override
     @Transactional
@@ -104,7 +103,7 @@ public class ChallengeService implements ChallengeCommandUseCase {
     }
 
     private void publishXpRewardEvent(UUID userId, String reason, Long rewardXp) {
-        // 어플리케이션 이벤트로 일단 처리
+        // 어플리케이션 내부 이벤트 발행 (트랜잭션 내)
         applicationEventPublisher.publishEvent(
                 XpRewardEvent.of(
                         userId.toString(),
@@ -114,10 +113,11 @@ public class ChallengeService implements ChallengeCommandUseCase {
         );
     }
 
+    /**
+     * 트랜잭션 커밋 후 외부 Kafka 이벤트 발행
+     */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Async
-    public void handleXpRewardEvent(XpRewardEvent event) {
-        // 커밋이 완료된 후 외부 이벤트를 발행.
+    public void handleXpRewardEventForKafka(XpRewardEvent event) {
         xpRewardEventPublisher.publishXpRewardEvent(event);
     }
 

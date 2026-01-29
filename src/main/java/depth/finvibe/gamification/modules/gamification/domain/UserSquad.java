@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import depth.finvibe.gamification.modules.gamification.domain.vo.Xp;
 import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
 
 @Entity
@@ -17,20 +16,15 @@ import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
 @Getter
-public class UserXpAward extends TimeStampedBaseEntity {
+public class UserSquad extends TimeStampedBaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private UUID userId;
 
-    @Embedded
-    private Xp xp;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "squad_id")
+    private Squad squad;
 
-    public static UserXpAward of(UUID userId, Xp xp) {
-        return UserXpAward.builder()
-                .userId(userId)
-                .xp(xp)
-                .build();
+    public void changeSquad(Squad squad) {
+        this.squad = squad;
     }
 }

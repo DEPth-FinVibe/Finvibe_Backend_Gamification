@@ -1,10 +1,19 @@
 package depth.finvibe.gamification.modules.gamification.application.port.in;
 
-public interface XpQueryUseCase {
-    //1. 내 현재 XP 조회
-    // - 주간 XP 변동률 (%단위)
+import depth.finvibe.gamification.modules.gamification.dto.XpDto;
 
-    //3. 스쿼드 XP 랭킹 조회 
+import java.util.UUID;
+
+public interface XpQueryUseCase {
+    /**
+     * 사용자의 현재 XP 정보를 조회합니다.
+     *
+     * @param userId 사용자 ID
+     * @return XP 정보 응답 DTO
+     */
+    XpDto.Response getUserXp(UUID userId);
+
+    //3. 스쿼드 XP 랭킹 조회
     // - 대학이 가지고있는 총 XP의 합을 기준으로 랭킹 산정.
     // - (현재랭킹, 총 XP, 이번주 얻은 XP, 이번주 XP 변동률 (%단위), 랭킹 등락폭[+2, -2, ... 등]) 제공
 
