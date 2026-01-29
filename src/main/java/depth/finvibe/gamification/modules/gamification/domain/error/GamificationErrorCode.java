@@ -1,0 +1,33 @@
+package depth.finvibe.gamification.modules.gamification.domain.error;
+
+import depth.finvibe.gamification.shared.error.DomainErrorCode;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
+public enum GamificationErrorCode implements DomainErrorCode {
+
+    // ===== XP 관련 에러 =====
+    INVALID_XP_VALUE("GAMIFICATION_INVALID_XP_VALUE", "xp의 값은 0보다 커야 합니다."),
+    INVALID_XP_REASON("GAMIFICATION_INVALID_XP_REASON", "xp의 지급 사유는 비어 있을 수 없습니다."),
+
+    // ===== 기간(Period) 관련 에러 =====
+    INVALID_PERIOD_START_DATE_OR_END_DATE("GAMIFICATION_INVALID_PERIOD_START_DATE_OR_END_DATE", "period의 시작일 또는 종료일이 비어 있을 수 없습니다."),
+    INVALID_PERIOD_START_DATE_IS_GREATER_THAN_END_DATE("GAMIFICATION_INVALID_PERIOD_START_DATE_IS_GREATER_THAN_END_DATE", "period의 시작일이 종료일보다 클 수 없습니다."),
+
+    // ===== 메트릭(Metric) 관련 에러 =====
+    INVALID_METRIC_TYPE("GAMIFICATION_INVALID_METRIC_TYPE", "metricType은 비어 있을 수 없습니다."),
+
+    // ===== 목표값(Target, Reward) 관련 에러 =====
+    INVALID_TARGET_VALUE("GAMIFICATION_INVALID_TARGET_VALUE", "targetValue는 0보다 커야 합니다."),
+    INVALID_REWARD_XP("GAMIFICATION_INVALID_REWARD_XP", "rewardXp는 0보다 커야 합니다."),
+    INVALID_REWARD_BADGE("GAMIFICATION_INVALID_REWARD_BADGE", "rewardBadge는 비어 있을 수 없습니다."),
+
+    // ===== 개인 도전과제(PersonalChallenge) 관련 에러 =====
+    INVALID_PERSONAL_CHALLENGE_TITLE_IS_EMPTY("GAMIFICATION_INVALID_PERSONAL_CHALLENGE_TITLE_IS_EMPTY", "개인 도전과제의 제목은 비어 있을 수 없습니다."),
+    INVALID_PERSONAL_CHALLENGE_ID("GAMIFICATION_INVALID_PERSONAL_CHALLENGE_ID", "올바르지 않은 개인 도전과제 ID입니다.");
+
+    private final String code;
+    private final String message;
+}
