@@ -47,7 +47,8 @@ public class SquadService implements SquadCommandUseCase, SquadQueryUseCase {
                 .region(region)
                 .build();
 
-        return squadRepository.save(squad).getId();
+        squadRepository.save(squad);
+        return squad.getId();
     }
 
     @Override

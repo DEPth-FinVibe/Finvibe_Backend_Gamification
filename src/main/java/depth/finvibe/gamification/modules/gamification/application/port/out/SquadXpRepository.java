@@ -1,12 +1,13 @@
 package depth.finvibe.gamification.modules.gamification.application.port.out;
 
 import depth.finvibe.gamification.modules.gamification.domain.SquadXp;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface SquadXpRepository extends JpaRepository<SquadXp, Long> {
+public interface SquadXpRepository {
+    void save(SquadXp squadXp);
+    void saveAll(List<SquadXp> squadXps);
     Optional<SquadXp> findBySquadId(Long squadId);
     List<SquadXp> findAllByOrderByTotalXpDesc();
 }
