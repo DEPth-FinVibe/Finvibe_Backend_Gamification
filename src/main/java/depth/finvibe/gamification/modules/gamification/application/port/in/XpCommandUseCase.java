@@ -11,4 +11,10 @@ public interface XpCommandUseCase {
      * @param reason 부여 사유
      */
     void grantUserXp(UUID userId, Long value, String reason);
+
+    /**
+     * 주간 스쿼드 랭킹을 정산하고 초기화합니다.
+     * 매주 정해진 시간에 스케줄러에 의해 호출됩니다.
+     */
+    void updateWeeklySquadRanking();
 }

@@ -1,15 +1,12 @@
 package depth.finvibe.gamification.modules.gamification.application.port.out;
 
+import depth.finvibe.gamification.modules.gamification.domain.UserXpAward;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.List;
 import java.util.UUID;
 
-import depth.finvibe.gamification.modules.gamification.domain.UserXpAward;
-
-public interface UserXpAwardRepository {
-    void save(UserXpAward userXpAward);
-
-    void saveAll(List<UserXpAward> userXpAwards);
-
+public interface UserXpAwardRepository extends JpaRepository<UserXpAward, Long> {
     List<UserXpAward> findByUserId(UUID userId);
 
     /**

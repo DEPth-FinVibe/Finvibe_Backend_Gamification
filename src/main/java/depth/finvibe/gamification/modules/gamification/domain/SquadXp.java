@@ -1,7 +1,5 @@
 package depth.finvibe.gamification.modules.gamification.domain;
 
-import java.util.UUID;
-
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -17,11 +15,14 @@ import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
 @Getter
-public class UserXp extends TimeStampedBaseEntity {
+public class SquadXp extends TimeStampedBaseEntity {
     @Id
-    private UUID userId;
+    private Long squadId;
 
-    private String nickname;
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "squad_id")
+    private Squad squad;
 
     @Builder.Default
     private Long totalXp = 0L;
@@ -30,27 +31,23 @@ public class UserXp extends TimeStampedBaseEntity {
     private Long weeklyXp = 0L;
 
     @Builder.Default
-    private Integer level = 1;
+    private Double weeklyXpChangeRate = 0.0;
 
     public void addXp(Long amount) {
         this.totalXp += amount;
         this.weeklyXp += amount;
-        updateLevel();
+        updateChangeRate();
     }
 
     public void resetWeeklyXp() {
         this.weeklyXp = 0L;
+        updateChangeRate();
     }
 
-    private void updateLevel() {
-        // 간단한 레벨 계산 로직 (예: 1000 XP당 1레벨)
-        this.level = (int) (this.totalXp / 1000) + 1;
-    }
-
-    public static UserXp of(UUID userId, String nickname) {
-        return UserXp.builder()
-                .userId(userId)
-                .nickname(nickname)
-                .build();
+    private void updateChangeRate() {
+        // 변동률 계산 로직 (필요 시 지난주 데이터와 비교)
+        if (totalXp > 0) {
+            this.weeklyXpChangeRate = (double) weeklyXp / (totalXp - weeklyXp) * 100;
+        }
     }
 }
