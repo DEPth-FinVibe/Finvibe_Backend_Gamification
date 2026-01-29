@@ -55,5 +55,17 @@ public class PersonalChallengeReward extends TimeStampedBaseEntity {
         if (challengeId == null || challengeId <= 0) {
             throw new DomainException(GamificationErrorCode.INVALID_PERSONAL_CHALLENGE_ID);
         }
+
+        if (userId == null) {
+            throw new DomainException(GamificationErrorCode.INVALID_USER_ID);
+        }
+
+        if (period == null) {
+            throw new DomainException(GamificationErrorCode.INVALID_PERIOD);
+        }
+
+        if (reward == null) {
+            throw new DomainException(GamificationErrorCode.INVALID_REWARD);
+        }
     }
 }

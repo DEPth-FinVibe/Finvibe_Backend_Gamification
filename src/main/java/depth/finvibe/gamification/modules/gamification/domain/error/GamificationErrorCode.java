@@ -26,7 +26,13 @@ public enum GamificationErrorCode implements DomainErrorCode {
 
     // ===== 개인 도전과제(PersonalChallenge) 관련 에러 =====
     INVALID_PERSONAL_CHALLENGE_TITLE_IS_EMPTY("GAMIFICATION_INVALID_PERSONAL_CHALLENGE_TITLE_IS_EMPTY", "개인 도전과제의 제목은 비어 있을 수 없습니다."),
-    INVALID_PERSONAL_CHALLENGE_ID("GAMIFICATION_INVALID_PERSONAL_CHALLENGE_ID", "올바르지 않은 개인 도전과제 ID입니다.");
+    INVALID_PERSONAL_CHALLENGE_ID("GAMIFICATION_INVALID_PERSONAL_CHALLENGE_ID", "올바르지 않은 개인 도전과제 ID입니다."),
+    INVALID_USER_ID("GAMIFICATION_INVALID_USER_ID", "올바르지 않은 사용자 ID입니다."),
+    INVALID_PERIOD("GAMIFICATION_INVALID_PERIOD", "period는 비어 있을 수 없습니다."),
+    INVALID_REWARD("GAMIFICATION_INVALID_REWARD", "reward는 비어 있을 수 없습니다."),
+
+    // ===== 뱃지(Badge) 관련 에러 =====
+    BADGE_ALREADY_EXIST("GAMIFICATION_BADGE_ALREADY_EXIST", "이미 보유한 뱃지입니다.");
 
     private final String code;
     private final String message;
