@@ -24,12 +24,12 @@ import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
 @Getter
 @SuperBuilder
 public class UserMetric extends TimeStampedBaseEntity {
-  @Id
-  @Enumerated(EnumType.STRING)
-  private UserMetricType type;
+    @Id
+    @Enumerated(EnumType.STRING)
+    private UserMetricType type;
 
-  @Id
-  private UUID userId;
+    @Id
+    private UUID userId;
 
-  private Double value;
+    private Double value;
 }

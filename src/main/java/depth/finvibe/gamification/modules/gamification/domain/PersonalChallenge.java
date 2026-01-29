@@ -25,39 +25,39 @@ import org.springframework.util.StringUtils;
 @Getter
 @SuperBuilder
 public class PersonalChallenge extends TimeStampedBaseEntity {
-  
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
 
-  private String title;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  private String description;
+    private String title;
 
-  @Embedded
-  private ChallengeCondition condition;
+    private String description;
 
-  @Embedded
-  private Period period;
+    @Embedded
+    private ChallengeCondition condition;
 
-  @Embedded
-  private Reward reward;
+    @Embedded
+    private Period period;
 
-  public static PersonalChallenge of(String title, String description, ChallengeCondition condition, Period period, Reward reward) {
-    checkArgumentsAreValid(title, description, condition, period, reward);
+    @Embedded
+    private Reward reward;
 
-    return PersonalChallenge.builder()
-        .title(title)
-        .description(description)
-        .condition(condition)
-        .period(period)
-        .reward(reward)
-        .build();
-  }
+    public static PersonalChallenge of(String title, String description, ChallengeCondition condition, Period period, Reward reward) {
+        checkArgumentsAreValid(title, description, condition, period, reward);
 
-  private static void checkArgumentsAreValid(String title, String description, ChallengeCondition condition, Period period, Reward reward) {
-    if(!StringUtils.hasText(title)) {
-      throw new DomainException(GamificationErrorCode.INVALID_PERSONAL_CHALLENGE_TITLE_IS_EMPTY);
+        return PersonalChallenge.builder()
+                .title(title)
+                .description(description)
+                .condition(condition)
+                .period(period)
+                .reward(reward)
+                .build();
     }
-  }
+
+    private static void checkArgumentsAreValid(String title, String description, ChallengeCondition condition, Period period, Reward reward) {
+        if (!StringUtils.hasText(title)) {
+            throw new DomainException(GamificationErrorCode.INVALID_PERSONAL_CHALLENGE_TITLE_IS_EMPTY);
+        }
+    }
 }

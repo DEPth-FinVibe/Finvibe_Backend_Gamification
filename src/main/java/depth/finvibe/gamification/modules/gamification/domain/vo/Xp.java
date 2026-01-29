@@ -12,7 +12,7 @@ import org.springframework.util.StringUtils;
 @Getter
 @Embeddable
 public class Xp {
-    
+
     private Long value;
 
     private String reason;
@@ -27,11 +27,11 @@ public class Xp {
     }
 
     private static void checkArgumentsAreValid(Long value, String reason) {
-        if(value == null || value <= 0) {
+        if (value == null || value <= 0) {
             throw new DomainException(GamificationErrorCode.INVALID_XP_VALUE);
         }
 
-        if(!StringUtils.hasText(reason)) {
+        if (!StringUtils.hasText(reason)) {
             throw new DomainException(GamificationErrorCode.INVALID_XP_REASON);
         }
     }

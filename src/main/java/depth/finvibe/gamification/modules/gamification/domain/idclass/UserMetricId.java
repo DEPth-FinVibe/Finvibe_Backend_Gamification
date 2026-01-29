@@ -15,6 +15,6 @@ import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricTy
 @Getter
 @EqualsAndHashCode
 public class UserMetricId implements Serializable {
-  private UserMetricType type;
-  private UUID userId;
+    private UserMetricType type;
+    private UUID userId;
 }

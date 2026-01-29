@@ -25,34 +25,35 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class PersonalChallengeReward extends TimeStampedBaseEntity {
 
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  private Long challengeId;
+    private Long challengeId;
 
-  private UUID userId;
+    private UUID userId;
 
-  @Embedded
-  private Period period;
+    @Embedded
+    private Period period;
 
-  @Embedded
-  private Reward reward;
+    @Embedded
+    private Reward reward;
 
-  public static PersonalChallengeReward of(Long challengeId, UUID userId, Period period, Reward reward) {
+    public static PersonalChallengeReward of(Long challengeId, UUID userId, Period period, Reward reward) {
 
-    checkArgumentsAreValid(challengeId, userId, period, reward);
+        checkArgumentsAreValid(challengeId, userId, period, reward);
 
-    return PersonalChallengeReward.builder()
+        return PersonalChallengeReward.builder()
                 .challengeId(challengeId)
                 .userId(userId)
                 .period(period)
                 .reward(reward)
                 .build();
-  }
-
-  private static void checkArgumentsAreValid(Long challengeId, UUID userId, Period period, Reward reward) {
-    if(challengeId == null || challengeId <= 0) {
-      throw new DomainException(GamificationErrorCode.INVALID_PERSONAL_CHALLENGE_ID);
     }
-  }
+
+    private static void checkArgumentsAreValid(Long challengeId, UUID userId, Period period, Reward reward) {
+        if (challengeId == null || challengeId <= 0) {
+            throw new DomainException(GamificationErrorCode.INVALID_PERSONAL_CHALLENGE_ID);
+        }
+    }
 }

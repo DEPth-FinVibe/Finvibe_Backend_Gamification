@@ -19,26 +19,26 @@ import depth.finvibe.gamification.shared.error.DomainException;
 @Getter
 @Embeddable
 public class Reward {
-  private Long rewardXp;
+    private Long rewardXp;
 
-  @Enumerated(EnumType.STRING)
-  private Badge rewardBadge;
+    @Enumerated(EnumType.STRING)
+    private Badge rewardBadge;
 
-  public static Reward of(Long rewardXp, Badge rewardBadge) {
-    checkArgumentsAreValid(rewardXp, rewardBadge);
+    public static Reward of(Long rewardXp, Badge rewardBadge) {
+        checkArgumentsAreValid(rewardXp, rewardBadge);
 
-    return Reward.builder()
+        return Reward.builder()
                 .rewardXp(rewardXp)
                 .rewardBadge(rewardBadge)
                 .build();
-  }
+    }
 
-  private static void checkArgumentsAreValid(Long rewardXp, Badge rewardBadge) {
-    if (rewardXp == null && rewardBadge == null) {
-      throw new DomainException(GamificationErrorCode.INVALID_REWARD_XP);
+    private static void checkArgumentsAreValid(Long rewardXp, Badge rewardBadge) {
+        if (rewardXp == null && rewardBadge == null) {
+            throw new DomainException(GamificationErrorCode.INVALID_REWARD_XP);
+        }
+        if (rewardXp != null && rewardXp <= 0) {
+            throw new DomainException(GamificationErrorCode.INVALID_REWARD_XP);
+        }
     }
-    if (rewardXp != null && rewardXp <= 0) {
-      throw new DomainException(GamificationErrorCode.INVALID_REWARD_XP);
-    }
-  }
 }

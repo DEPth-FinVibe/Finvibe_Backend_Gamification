@@ -12,6 +12,7 @@ import lombok.experimental.SuperBuilder;
 import depth.finvibe.gamification.modules.gamification.domain.enums.Badge;
 import depth.finvibe.gamification.modules.gamification.domain.idclass.BadgeOwnershipId;
 import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
+
 @Entity
 @IdClass(BadgeOwnershipId.class)
 @AllArgsConstructor(staticName = "of")
@@ -19,10 +20,10 @@ import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
 @Getter
 @SuperBuilder
 public class BadgeOwnership extends TimeStampedBaseEntity {
-  @Id
-  @Enumerated(value = EnumType.STRING)
-  private Badge badge;
+    @Id
+    @Enumerated(value = EnumType.STRING)
+    private Badge badge;
 
-  @Id
-  private UUID ownerId;
+    @Id
+    private UUID ownerId;
 }

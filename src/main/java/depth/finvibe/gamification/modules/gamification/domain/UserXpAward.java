@@ -11,18 +11,19 @@ import lombok.experimental.SuperBuilder;
 
 import depth.finvibe.gamification.modules.gamification.domain.vo.Xp;
 import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
 @Getter
 public class UserXpAward extends TimeStampedBaseEntity {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  private UUID userId;
+    private UUID userId;
 
-  @Embedded
-  private Xp xp;
+    @Embedded
+    private Xp xp;
 }

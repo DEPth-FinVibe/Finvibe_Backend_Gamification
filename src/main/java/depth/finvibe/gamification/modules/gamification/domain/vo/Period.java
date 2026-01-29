@@ -18,15 +18,15 @@ import lombok.NoArgsConstructor;
 @Embeddable
 public class Period {
 
-  private LocalDate startDate;
-  private LocalDate endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
-  public static Period of(LocalDate startDate, LocalDate endDate) {
-        if(startDate == null || endDate == null) {
+    public static Period of(LocalDate startDate, LocalDate endDate) {
+        if (startDate == null || endDate == null) {
             throw new DomainException(GamificationErrorCode.INVALID_PERIOD_START_DATE_OR_END_DATE);
         }
 
-        if(startDate.isAfter(endDate)) {
+        if (startDate.isAfter(endDate)) {
             throw new DomainException(GamificationErrorCode.INVALID_PERIOD_START_DATE_IS_GREATER_THAN_END_DATE);
         }
 

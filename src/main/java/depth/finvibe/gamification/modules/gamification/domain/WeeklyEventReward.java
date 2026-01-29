@@ -20,10 +20,10 @@ import depth.finvibe.gamification.modules.gamification.domain.vo.Reward;
 @Getter
 @SuperBuilder
 public class WeeklyEventReward {
-  @Id
-  @Enumerated(EnumType.STRING)
-  private WeeklyEventType type;
+    @Id
+    @Enumerated(EnumType.STRING)
+    private WeeklyEventType type;
 
-  @Embedded
-  private Reward reward;
+    @Embedded
+    private Reward reward;
 }

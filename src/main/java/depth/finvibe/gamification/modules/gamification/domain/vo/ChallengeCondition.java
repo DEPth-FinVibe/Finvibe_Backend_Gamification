@@ -19,27 +19,27 @@ import depth.finvibe.gamification.shared.error.DomainException;
 @Getter
 @Embeddable
 public class ChallengeCondition {
-  @Enumerated(EnumType.STRING)
-  private UserMetricType metricType;
+    @Enumerated(EnumType.STRING)
+    private UserMetricType metricType;
 
-  private Double targetValue;
+    private Double targetValue;
 
-  public static ChallengeCondition of(UserMetricType metricType, Double targetValue) {
-    checkArgumentsAreValid(metricType, targetValue);
+    public static ChallengeCondition of(UserMetricType metricType, Double targetValue) {
+        checkArgumentsAreValid(metricType, targetValue);
 
-    return ChallengeCondition.builder()
-        .metricType(metricType)
-        .targetValue(targetValue)
-        .build();
-  }
-
-  private static void checkArgumentsAreValid(UserMetricType metricType, Double targetValue) {
-    if(metricType == null) {
-      throw new DomainException(GamificationErrorCode.INVALID_METRIC_TYPE);
+        return ChallengeCondition.builder()
+                .metricType(metricType)
+                .targetValue(targetValue)
+                .build();
     }
 
-    if(targetValue == null || targetValue <= 0) {
-      throw new DomainException(GamificationErrorCode.INVALID_TARGET_VALUE);
+    private static void checkArgumentsAreValid(UserMetricType metricType, Double targetValue) {
+        if (metricType == null) {
+            throw new DomainException(GamificationErrorCode.INVALID_METRIC_TYPE);
+        }
+
+        if (targetValue == null || targetValue <= 0) {
+            throw new DomainException(GamificationErrorCode.INVALID_TARGET_VALUE);
+        }
     }
-  }
 }
