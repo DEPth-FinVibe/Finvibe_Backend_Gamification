@@ -11,4 +11,6 @@ public interface PersonalChallengeRepository {
     void saveAll(List<PersonalChallenge> personalChallenges);
 
     List<PersonalChallenge> findAllByPeriod(Period period);
+
+    boolean existsByPeriod(Period period);
 }

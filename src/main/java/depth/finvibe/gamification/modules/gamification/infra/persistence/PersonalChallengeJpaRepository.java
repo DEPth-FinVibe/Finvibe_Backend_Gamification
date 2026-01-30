@@ -9,4 +9,6 @@ import depth.finvibe.gamification.modules.gamification.domain.PersonalChallenge;
 
 public interface PersonalChallengeJpaRepository extends JpaRepository<PersonalChallenge, Long> {
     List<PersonalChallenge> findByPeriodStartDateAndPeriodEndDate(LocalDate startDate, LocalDate endDate);
+
+    boolean existsByPeriodStartDateAndPeriodEndDate(LocalDate startDate, LocalDate endDate);
 }

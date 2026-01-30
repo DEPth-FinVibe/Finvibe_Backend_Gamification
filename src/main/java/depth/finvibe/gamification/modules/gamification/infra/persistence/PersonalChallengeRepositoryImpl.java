@@ -31,4 +31,12 @@ public class PersonalChallengeRepositoryImpl implements PersonalChallengeReposit
                 period.getEndDate()
         );
     }
+
+    @Override
+    public boolean existsByPeriod(Period period) {
+        return personalChallengeJpaRepository.existsByPeriodStartDateAndPeriodEndDate(
+                period.getStartDate(),
+                period.getEndDate()
+        );
+    }
 }
