@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import depth.finvibe.gamification.modules.gamification.domain.enums.CollectPeriod;
 import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricType;
 
 @NoArgsConstructor
@@ -17,4 +18,5 @@ import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricTy
 public class UserMetricId implements Serializable {
     private UserMetricType type;
     private UUID userId;
+    private CollectPeriod collectPeriod;
 }

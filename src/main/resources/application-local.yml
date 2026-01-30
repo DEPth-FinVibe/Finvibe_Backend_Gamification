@@ -34,6 +34,12 @@ spring:
   mongodb:
     uri: mongodb://localhost:27017/finvibe
 
+langchain4j:
+  google-ai-gemini:
+    chat-model:
+      api-key: ${GEMINI_API_KEY}
+      model-name: gemini-3-flash-preview
+
 logging:
   level:
     root: info

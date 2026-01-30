@@ -30,6 +30,12 @@ spring:
   mongodb:
     uri: ${MONGO_URL}
 
+langchain4j:
+  google-ai-gemini:
+    chat-model:
+      api-key: ${GEMINI_API_KEY}
+      model-name: gemini-3-flash-preview
+
 logging:
   level:
     root: info
@@ -37,3 +43,9 @@ logging:
 security:
   jwt:
     hmac-secret: ${JWT_SECRET}
+
+springdoc:
+  swagger-ui:
+    path: /doc/gamification/swagger-ui.html
+  api-docs:
+    path: /doc/gamification/v3/api-docs

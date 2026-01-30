@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricType;
+import depth.finvibe.gamification.modules.gamification.domain.enums.CollectPeriod;
 import depth.finvibe.gamification.modules.gamification.domain.idclass.UserMetricId;
 import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
 
@@ -30,6 +31,10 @@ public class UserMetric extends TimeStampedBaseEntity {
 
     @Id
     private UUID userId;
+
+    @Id
+    @Enumerated(EnumType.STRING)
+    private CollectPeriod collectPeriod;
 
     private Double value;
 }

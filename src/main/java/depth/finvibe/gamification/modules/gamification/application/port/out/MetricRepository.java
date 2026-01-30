@@ -5,19 +5,24 @@ import java.util.Optional;
 import java.util.UUID;
 
 import depth.finvibe.gamification.modules.gamification.domain.UserMetric;
+import depth.finvibe.gamification.modules.gamification.domain.enums.CollectPeriod;
 import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricType;
 import depth.finvibe.gamification.modules.gamification.domain.vo.Period;
 
 public interface MetricRepository {
-    List<UUID> findUsersAchieved(UserMetricType metricType, Double targetValue);
+    List<UUID> findUsersAchieved(UserMetricType metricType, CollectPeriod collectPeriod, Double targetValue);
 
-    List<UUID> findTopUsersByMetric(UserMetricType metricType, int limit);
+    List<UUID> findTopUsersByMetric(UserMetricType metricType, CollectPeriod collectPeriod, int limit);
 
-    List<UUID> findUsersAchievedInPeriod(UserMetricType metricType, Double targetValue, Period period);
+    List<UUID> findUsersAchievedInPeriod(UserMetricType metricType, CollectPeriod collectPeriod, Double targetValue, Period period);
 
-    Optional<UserMetric> findByUserIdAndType(UUID userId, UserMetricType type);
+    Optional<UserMetric> findByUserIdAndType(UUID userId, UserMetricType type, CollectPeriod collectPeriod);
 
     List<UserMetric> findAllByUserId(UUID userId);
 
-    List<UserMetric> findAllByUserIdAndTypes(UUID userId, List<UserMetricType> types);
+    List<UserMetric> findAllByUserIdAndTypes(UUID userId, List<UserMetricType> types, CollectPeriod collectPeriod);
+
+    UserMetric save(UserMetric userMetric);
+
+    void deleteAllByCollectPeriod(CollectPeriod collectPeriod);
 }
