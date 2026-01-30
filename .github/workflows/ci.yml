@@ -78,7 +78,7 @@ jobs:
       - name: Update image tag in manifest
         run: |
           cd manifest/gamification  # 실제 서비스 디렉토리로 변경
-          sed -i "s|image: .*|image: cmh1448/gamification:${{ env.IMAGE_TAG }}|" deployment.yaml
+          sed -i "s|image: .*|image: cmh1448/finvibe-gamification:${{ env.IMAGE_TAG }}|" deployment.yaml
 
       # 1️⃣1️⃣ manifest repo 커밋 & 푸시
       - name: Commit & Push manifest
