@@ -12,10 +12,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableJpaAuditing
 @EnableAsync
 @ConfigurationPropertiesScan
-public class FinvibeBoilerplateApplication {
+public class FinvibeGamificationApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(FinvibeBoilerplateApplication.class, args);
+    SpringApplication.run(FinvibeGamificationApplication.class, args);
   }
 
 }

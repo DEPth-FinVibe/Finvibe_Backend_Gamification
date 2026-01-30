@@ -21,7 +21,7 @@ configurations {
 }
 
 springBoot {
-    mainClass = 'depth.finvibe.boilerplate.FinvibeBoilerplateApplication'
+    mainClass = 'depth.finvibe.gamification.FinvibeGamificationApplication'
 }
 
 repositories {
