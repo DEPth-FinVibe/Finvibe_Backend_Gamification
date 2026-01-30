@@ -5,6 +5,7 @@ import depth.finvibe.gamification.modules.gamification.application.port.out.Metr
 import depth.finvibe.gamification.modules.gamification.application.port.out.PersonalChallengeRepository;
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallenge;
 import depth.finvibe.gamification.modules.gamification.domain.UserMetric;
+import depth.finvibe.gamification.modules.gamification.domain.enums.CollectPeriod;
 import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricType;
 import depth.finvibe.gamification.modules.gamification.domain.vo.Period;
 import depth.finvibe.gamification.modules.gamification.dto.ChallengeDto;
@@ -49,11 +50,38 @@ public class ChallengeQueryService implements ChallengeQueryUseCase {
                 .distinct()
                 .toList();
 
-        // 필요한 메트릭들만 한 번에 조회하여 Map으로 변환
-        return metricRepository.findAllByUserIdAndTypes(userId, requiredTypes).stream()
-            .collect(Collectors.toMap(
-                UserMetric::getType,
-                UserMetric::getValue
-            ));
+        List<UserMetricType> weeklyTypes = requiredTypes.stream()
+                .filter(this::isWeeklyMetric)
+                .toList();
+        List<UserMetricType> nonWeeklyTypes = requiredTypes.stream()
+                .filter(type -> !isWeeklyMetric(type))
+                .toList();
+
+        Map<UserMetricType, Double> metrics = metricRepository.findAllByUserIdAndTypes(
+                        userId,
+                        nonWeeklyTypes,
+                        CollectPeriod.ALLTIME)
+                .stream()
+                .collect(Collectors.toMap(
+                        UserMetric::getType,
+                        UserMetric::getValue
+                ));
+
+        Map<UserMetricType, Double> weeklyMetrics = metricRepository.findAllByUserIdAndTypes(
+                        userId,
+                        weeklyTypes,
+                        CollectPeriod.WEEKLY)
+                .stream()
+                .collect(Collectors.toMap(
+                        UserMetric::getType,
+                        UserMetric::getValue
+                ));
+
+        metrics.putAll(weeklyMetrics);
+        return metrics;
+    }
+
+    private boolean isWeeklyMetric(UserMetricType metricType) {
+        return metricType != null && metricType.isWeeklyCollect();
     }
 }

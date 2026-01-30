@@ -18,6 +18,7 @@ import depth.finvibe.gamification.modules.gamification.application.port.in.Chall
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallenge;
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallengeReward;
 import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricType;
+import depth.finvibe.gamification.modules.gamification.domain.enums.CollectPeriod;
 import depth.finvibe.gamification.modules.gamification.domain.enums.WeeklyEventType;
 import depth.finvibe.gamification.modules.gamification.domain.vo.ChallengeCondition;
 import depth.finvibe.gamification.modules.gamification.domain.vo.Period;
@@ -80,8 +81,7 @@ public class ChallengeService implements ChallengeCommandUseCase {
 
     private void rewardUsersByChallenge(PersonalChallenge personalChallenge) {
         ChallengeCondition condition = personalChallenge.getCondition();
-
-        List<UUID> achievedUserIds = metricRepository.findUsersAchieved(condition.getMetricType(), condition.getTargetValue());
+        List<UUID> achievedUserIds = getWeeklyAchievedUsers(condition.getMetricType(), condition.getTargetValue());
 
         List<PersonalChallengeReward> toSave = achievedUserIds.stream()
                 .map(userId -> toPersonalChallengeReward(personalChallenge, userId))
@@ -133,23 +133,36 @@ public class ChallengeService implements ChallengeCommandUseCase {
     @Override
     @Transactional
     public void rewardWeeklyChallenges() {
-        LocalDate today = LocalDate.now();
-
         // 주말 거래 토너먼트: 현재 수익률 상위 10명
         List<UUID> weekendTournamentUsers = metricRepository.findTopUsersByMetric(
                 UserMetricType.CURRENT_RETURN_RATE,
+                CollectPeriod.ALLTIME,
                 10
         );
         rewardWeeklyEventUsers(WeeklyEventType.WEEKEND_TRADING_TOURNAMENT, weekendTournamentUsers, 1000L);
 
         // 챌린지 이벤트: 지난 주 챌린지 3개 이상 달성한 유저
-        Period lastWeekPeriod = Period.ofWeek(today.minusWeeks(1));
-        List<UUID> challengeEventUsers = metricRepository.findUsersAchievedInPeriod(
+        List<UUID> challengeEventUsers = getWeeklyAchievedUsers(
                 UserMetricType.CHALLENGE_COMPLETION_COUNT,
-                3.0,
-                lastWeekPeriod
+                3.0
         );
         rewardWeeklyEventUsers(WeeklyEventType.CHALLENGE_EVENT, challengeEventUsers, 50L);
+    }
+
+    private List<UUID> getWeeklyAchievedUsers(UserMetricType metricType, Double targetValue) {
+        if (metricType == null) {
+            return List.of();
+        }
+
+        if (isWeeklyMetric(metricType)) {
+            return metricRepository.findUsersAchieved(metricType, CollectPeriod.WEEKLY, targetValue);
+        }
+
+        return metricRepository.findUsersAchieved(metricType, CollectPeriod.ALLTIME, targetValue);
+    }
+
+    private boolean isWeeklyMetric(UserMetricType metricType) {
+        return metricType != null && metricType.isWeeklyCollect();
     }
 
     private void rewardWeeklyEventUsers(WeeklyEventType eventType, List<UUID> userIds, Long rewardXp) {

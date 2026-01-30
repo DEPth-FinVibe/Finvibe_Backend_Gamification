@@ -20,6 +20,7 @@ import depth.finvibe.gamification.modules.gamification.application.port.out.Pers
 import depth.finvibe.gamification.modules.gamification.application.port.out.XpRewardEventPublisher;
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallenge;
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallengeReward;
+import depth.finvibe.gamification.modules.gamification.domain.enums.CollectPeriod;
 import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricType;
 import depth.finvibe.gamification.modules.gamification.domain.vo.ChallengeCondition;
 import depth.finvibe.gamification.modules.gamification.domain.vo.Period;
@@ -100,7 +101,7 @@ class ChallengeServiceTest {
 
         challengeService.rewardPersonalChallenges();
 
-        verify(metricRepository, never()).findUsersAchieved(any(), any());
+        verify(metricRepository, never()).findUsersAchieved(any(), any(), any());
         verify(personalChallengeRewardRepository, never()).saveAll(anyList());
         verify(applicationEventPublisher, never()).publishEvent(any());
     }
@@ -120,7 +121,7 @@ class ChallengeServiceTest {
         UUID user2 = UUID.randomUUID();
 
         when(personalChallengeRepository.findAllByPeriod(any(Period.class))).thenReturn(List.of(challenge));
-        when(metricRepository.findUsersAchieved(UserMetricType.CURRENT_RETURN_RATE, 5.0))
+        when(metricRepository.findUsersAchieved(UserMetricType.CURRENT_RETURN_RATE, CollectPeriod.ALLTIME, 5.0))
                 .thenReturn(List.of(user1, user2));
 
         challengeService.rewardPersonalChallenges();
@@ -144,9 +145,9 @@ class ChallengeServiceTest {
     @Test
     @DisplayName("주간 이벤트 보상 시 대상 유저에게 XP 이벤트를 발행한다")
     void reward_weekly_challenges_publishes_events() {
-        when(metricRepository.findTopUsersByMetric(eq(UserMetricType.CURRENT_RETURN_RATE), anyInt()))
+        when(metricRepository.findTopUsersByMetric(eq(UserMetricType.CURRENT_RETURN_RATE), eq(CollectPeriod.ALLTIME), anyInt()))
                 .thenReturn(List.of(UUID.randomUUID(), UUID.randomUUID()));
-        when(metricRepository.findUsersAchievedInPeriod(eq(UserMetricType.CHALLENGE_COMPLETION_COUNT), eq(3.0), any(Period.class)))
+        when(metricRepository.findUsersAchieved(eq(UserMetricType.CHALLENGE_COMPLETION_COUNT), eq(CollectPeriod.WEEKLY), eq(3.0)))
                 .thenReturn(List.of(UUID.randomUUID()));
 
         challengeService.rewardWeeklyChallenges();

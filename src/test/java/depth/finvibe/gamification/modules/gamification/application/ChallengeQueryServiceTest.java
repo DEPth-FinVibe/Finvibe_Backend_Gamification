@@ -15,6 +15,7 @@ import depth.finvibe.gamification.modules.gamification.application.port.out.Metr
 import depth.finvibe.gamification.modules.gamification.application.port.out.PersonalChallengeRepository;
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallenge;
 import depth.finvibe.gamification.modules.gamification.domain.UserMetric;
+import depth.finvibe.gamification.modules.gamification.domain.enums.CollectPeriod;
 import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricType;
 import depth.finvibe.gamification.modules.gamification.domain.vo.ChallengeCondition;
 import depth.finvibe.gamification.modules.gamification.domain.vo.Period;
@@ -23,6 +24,7 @@ import depth.finvibe.gamification.modules.gamification.dto.ChallengeDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @DisplayName("ChallengeQueryService 단위 테스트")
@@ -61,14 +63,17 @@ class ChallengeQueryServiceTest {
 
         when(personalChallengeRepository.findAllByPeriod(any(Period.class)))
                 .thenReturn(List.of(challengeA, challengeB));
-        when(metricRepository.findAllByUserIdAndTypes(any(UUID.class), any(List.class)))
+        when(metricRepository.findAllByUserIdAndTypes(any(UUID.class), any(List.class), eq(CollectPeriod.ALLTIME)))
                 .thenReturn(List.of(
                         UserMetric.builder()
                                 .type(UserMetricType.CURRENT_RETURN_RATE)
                                 .userId(userId)
+                                .collectPeriod(CollectPeriod.ALLTIME)
                                 .value(7.5)
                                 .build()
                 ));
+        when(metricRepository.findAllByUserIdAndTypes(any(UUID.class), any(List.class), eq(CollectPeriod.WEEKLY)))
+                .thenReturn(List.of());
 
         List<ChallengeDto.ChallengeResponse> result = challengeQueryService.getPersonalChallenges(userId);
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import depth.finvibe.gamification.modules.gamification.application.port.out.MetricRepository;
 import depth.finvibe.gamification.modules.gamification.domain.UserMetric;
+import depth.finvibe.gamification.modules.gamification.domain.enums.CollectPeriod;
 import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricType;
 import depth.finvibe.gamification.modules.gamification.domain.vo.Period;
 
@@ -19,27 +20,31 @@ public class MetricRepositoryImpl implements MetricRepository {
     private final MetricJpaRepository metricJpaRepository;
 
     @Override
-    public List<UUID> findUsersAchieved(UserMetricType metricType, Double targetValue) {
-        return metricJpaRepository.findByTypeAndValueGreaterThanEqual(metricType, targetValue).stream()
+    public List<UUID> findUsersAchieved(UserMetricType metricType, CollectPeriod collectPeriod, Double targetValue) {
+        return metricJpaRepository.findByTypeAndCollectPeriodAndValueGreaterThanEqual(metricType, collectPeriod, targetValue).stream()
                 .map(UserMetric::getUserId)
                 .toList();
     }
 
     @Override
-    public List<UUID> findTopUsersByMetric(UserMetricType metricType, int limit) {
-        return metricJpaRepository.findByTypeOrderByValueDesc(metricType, PageRequest.of(0, limit)).stream()
+    public List<UUID> findTopUsersByMetric(UserMetricType metricType, CollectPeriod collectPeriod, int limit) {
+        return metricJpaRepository.findByTypeAndCollectPeriodOrderByValueDesc(
+                        metricType,
+                        collectPeriod,
+                        PageRequest.of(0, limit))
+                .stream()
                 .map(UserMetric::getUserId)
                 .toList();
     }
 
     @Override
-    public List<UUID> findUsersAchievedInPeriod(UserMetricType metricType, Double targetValue, Period period) {
-        return findUsersAchieved(metricType, targetValue);
+    public List<UUID> findUsersAchievedInPeriod(UserMetricType metricType, CollectPeriod collectPeriod, Double targetValue, Period period) {
+        return findUsersAchieved(metricType, collectPeriod, targetValue);
     }
 
     @Override
-    public Optional<UserMetric> findByUserIdAndType(UUID userId, UserMetricType type) {
-        return metricJpaRepository.findByUserIdAndType(userId, type);
+    public Optional<UserMetric> findByUserIdAndType(UUID userId, UserMetricType type, CollectPeriod collectPeriod) {
+        return metricJpaRepository.findByUserIdAndTypeAndCollectPeriod(userId, type, collectPeriod);
     }
 
     @Override
@@ -48,7 +53,17 @@ public class MetricRepositoryImpl implements MetricRepository {
     }
 
     @Override
-    public List<UserMetric> findAllByUserIdAndTypes(UUID userId, List<UserMetricType> types) {
-        return metricJpaRepository.findByUserIdAndTypeIn(userId, types);
+    public List<UserMetric> findAllByUserIdAndTypes(UUID userId, List<UserMetricType> types, CollectPeriod collectPeriod) {
+        return metricJpaRepository.findByUserIdAndTypeInAndCollectPeriod(userId, types, collectPeriod);
+    }
+
+    @Override
+    public UserMetric save(UserMetric userMetric) {
+        return metricJpaRepository.save(userMetric);
+    }
+
+    @Override
+    public void deleteAllByCollectPeriod(CollectPeriod collectPeriod) {
+        metricJpaRepository.deleteByCollectPeriod(collectPeriod);
     }
 }

@@ -18,6 +18,7 @@ public enum GamificationErrorCode implements DomainErrorCode {
 
     // ===== 메트릭(Metric) 관련 에러 =====
     INVALID_METRIC_TYPE("GAMIFICATION_INVALID_METRIC_TYPE", "metricType은 비어 있을 수 없습니다."),
+    INVALID_METRIC_DELTA("GAMIFICATION_INVALID_METRIC_DELTA", "metric delta는 비어 있을 수 없습니다."),
 
     // ===== 목표값(Target, Reward) 관련 에러 =====
     INVALID_TARGET_VALUE("GAMIFICATION_INVALID_TARGET_VALUE", "targetValue는 0보다 커야 합니다."),
