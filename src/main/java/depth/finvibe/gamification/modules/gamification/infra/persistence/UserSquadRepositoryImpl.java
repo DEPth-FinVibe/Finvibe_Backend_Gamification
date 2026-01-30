@@ -1,27 +1,32 @@
 package depth.finvibe.gamification.modules.gamification.infra.persistence;
 
-import depth.finvibe.gamification.modules.gamification.application.port.out.UserSquadRepository;
-import depth.finvibe.gamification.modules.gamification.domain.UserSquad;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+import depth.finvibe.gamification.modules.gamification.application.port.out.UserSquadRepository;
+import depth.finvibe.gamification.modules.gamification.domain.UserSquad;
+
 @Repository
+@RequiredArgsConstructor
 public class UserSquadRepositoryImpl implements UserSquadRepository {
+    private final UserSquadJpaRepository userSquadJpaRepository;
+
     @Override
     public void save(UserSquad userSquad) {
-
+        userSquadJpaRepository.save(userSquad);
     }
 
     @Override
     public Optional<UserSquad> findByUserId(UUID userId) {
-        return Optional.empty();
+        return userSquadJpaRepository.findByUserId(userId);
     }
 
     @Override
     public List<UserSquad> findAllBySquadId(Long squadId) {
-        return List.of();
+        return userSquadJpaRepository.findAllBySquadId(squadId);
     }
 }
