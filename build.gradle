@@ -47,6 +47,10 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // SpringDoc
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
+
+
     // LangChain4j (Google AI Studio - Gemini)
     implementation 'dev.langchain4j:langchain4j-google-ai-gemini:1.10.0'
     implementation 'dev.langchain4j:langchain4j:1.10.0'

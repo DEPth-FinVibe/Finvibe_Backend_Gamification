@@ -43,3 +43,9 @@ logging:
 security:
   jwt:
     hmac-secret: ${JWT_SECRET}
+
+springdoc:
+  swagger-ui:
+    path: /doc/gamification/swagger-ui.html
+  api-docs:
+    path: /doc/gamification/v3/api-docs
