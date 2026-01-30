@@ -1,5 +1,6 @@
 package depth.finvibe.gamification.config;
 
+import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +28,18 @@ public class TestRedissonConfig {
   @Bean
   @Primary
   public RedissonClient redissonClient() {
-    return mock(RedissonClient.class);
+    RedissonClient redissonClient = mock(RedissonClient.class);
+    RLock lock = mock(RLock.class);
+
+    when(redissonClient.getLock(anyString())).thenReturn(lock);
+    try {
+      when(lock.tryLock(any(Long.class), any(Long.class), any())).thenReturn(true);
+    } catch (InterruptedException e) {
+      throw new IllegalStateException(e);
+    }
+    when(lock.isHeldByCurrentThread()).thenReturn(true);
+
+    return redissonClient;
   }
 
   @Bean
