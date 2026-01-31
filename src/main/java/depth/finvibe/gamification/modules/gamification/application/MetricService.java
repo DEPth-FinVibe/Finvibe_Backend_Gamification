@@ -49,6 +49,15 @@ public class MetricService implements MetricCommandUseCase {
             return;
         }
 
+        if (isAbsoluteMetric(metricType)) {
+            if (delta == null) {
+                throw new DomainException(GamificationErrorCode.INVALID_METRIC_DELTA);
+            }
+            saveMetric(userId, metricType, CollectPeriod.ALLTIME, delta);
+            evaluateBadgeByMetric(userId, metricType, delta);
+            return;
+        }
+
         double increase = delta == null ? 0.0 : delta;
         double updatedValue = getMetricValue(userId, metricType, CollectPeriod.ALLTIME) + increase;
         saveMetric(userId, metricType, CollectPeriod.ALLTIME, updatedValue);
@@ -125,6 +134,12 @@ public class MetricService implements MetricCommandUseCase {
 
     private boolean isWeeklyMetric(UserMetricType metricType) {
         return metricType != null && metricType.isWeeklyCollect();
+    }
+
+    private boolean isAbsoluteMetric(UserMetricType metricType) {
+        return metricType == UserMetricType.CURRENT_RETURN_RATE
+                || metricType == UserMetricType.PORTFOLIO_COUNT_WITH_STOCKS
+                || metricType == UserMetricType.HOLDING_STOCK_COUNT;
     }
 
     private void evaluateBadgeByMetric(UUID userId, UserMetricType metricType, double value) {

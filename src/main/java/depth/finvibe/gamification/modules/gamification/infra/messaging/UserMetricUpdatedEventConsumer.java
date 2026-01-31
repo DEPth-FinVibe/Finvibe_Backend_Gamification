@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import depth.finvibe.gamification.modules.gamification.application.port.in.MetricCommandUseCase;
 import depth.finvibe.gamification.modules.gamification.application.port.in.MetricEventCommandUseCase;
 import depth.finvibe.gamification.modules.gamification.domain.error.GamificationErrorCode;
 import depth.finvibe.gamification.shared.dto.UserMetricUpdatedEvent;
@@ -19,7 +18,6 @@ import depth.finvibe.gamification.shared.error.DomainException;
 @RequiredArgsConstructor
 public class UserMetricUpdatedEventConsumer {
 
-    private final MetricCommandUseCase metricCommandUseCase;
     private final MetricEventCommandUseCase metricEventCommandUseCase;
 
     @KafkaListener(
@@ -30,40 +28,25 @@ public class UserMetricUpdatedEventConsumer {
             }
     )
     public void consumeUserMetricUpdatedEvent(UserMetricUpdatedEvent event) {
-        if (event == null || event.getUserId() == null) {
+        if (event == null || event.getUserId() == null || event.getEventType() == null) {
             log.warn("UserMetricUpdatedEvent is missing required fields");
             return;
         }
 
         try {
             UUID userId = UUID.fromString(event.getUserId());
-            if (event.getEventType() != null) {
-                metricEventCommandUseCase.updateUserMetricByEventType(
-                        event.getEventType(),
-                        userId,
-                        event.getDelta(),
-                        event.getOccurredAt());
-                return;
-            }
-
-            if (event.getMetricType() == null) {
-                log.warn("UserMetricUpdatedEvent is missing metric type or event type");
-                return;
-            }
-
-            metricCommandUseCase.updateUserMetric(
-                    event.getMetricType(),
+            metricEventCommandUseCase.updateUserMetricByEventType(
+                    event.getEventType(),
                     userId,
                     event.getDelta(),
-                    event.getOccurredAt()
-            );
+                    event.getOccurredAt());
 
         } catch (IllegalArgumentException ex) {
             log.warn("UserMetricUpdatedEvent has invalid userId: {}", event.getUserId());
         } catch (DomainException ex) {
             if (ex.getErrorCode() == GamificationErrorCode.INVALID_METRIC_TYPE
                     || ex.getErrorCode() == GamificationErrorCode.INVALID_METRIC_DELTA) {
-                log.warn("UserMetricUpdatedEvent has invalid metric payload");
+                log.warn("UserMetricUpdatedEvent has invalid event payload");
                 return;
             }
             throw ex;

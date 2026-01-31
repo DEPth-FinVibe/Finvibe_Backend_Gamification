@@ -54,6 +54,51 @@ public class MetricEventService implements MetricEventCommandUseCase {
                     userId,
                     getOrDefaultDelta(delta, 1.0),
                     occurredAt);
+            case CURRENT_RETURN_RATE_UPDATED -> metricCommandUseCase.updateUserMetric(
+                    UserMetricType.CURRENT_RETURN_RATE,
+                    userId,
+                    requireDelta(delta),
+                    occurredAt);
+            case STOCK_BOUGHT -> metricCommandUseCase.updateUserMetric(
+                    UserMetricType.STOCK_BUY_COUNT,
+                    userId,
+                    getOrDefaultDelta(delta, 1.0),
+                    occurredAt);
+            case STOCK_SOLD -> metricCommandUseCase.updateUserMetric(
+                    UserMetricType.STOCK_SELL_COUNT,
+                    userId,
+                    getOrDefaultDelta(delta, 1.0),
+                    occurredAt);
+            case PORTFOLIO_WITH_STOCKS_COUNT_CHANGED -> metricCommandUseCase.updateUserMetric(
+                    UserMetricType.PORTFOLIO_COUNT_WITH_STOCKS,
+                    userId,
+                    requireDelta(delta),
+                    occurredAt);
+            case NEWS_COMMENT_CREATED -> metricCommandUseCase.updateUserMetric(
+                    UserMetricType.NEWS_COMMENT_COUNT,
+                    userId,
+                    getOrDefaultDelta(delta, 1.0),
+                    occurredAt);
+            case NEWS_LIKED -> metricCommandUseCase.updateUserMetric(
+                    UserMetricType.NEWS_LIKE_COUNT,
+                    userId,
+                    getOrDefaultDelta(delta, 1.0),
+                    occurredAt);
+            case DISCUSSION_POST_CREATED -> metricCommandUseCase.updateUserMetric(
+                    UserMetricType.DISCUSSION_POST_COUNT,
+                    userId,
+                    getOrDefaultDelta(delta, 1.0),
+                    occurredAt);
+            case DISCUSSION_COMMENT_CREATED -> metricCommandUseCase.updateUserMetric(
+                    UserMetricType.DISCUSSION_COMMENT_COUNT,
+                    userId,
+                    getOrDefaultDelta(delta, 1.0),
+                    occurredAt);
+            case DISCUSSION_LIKED -> metricCommandUseCase.updateUserMetric(
+                    UserMetricType.DISCUSSION_LIKE_COUNT,
+                    userId,
+                    getOrDefaultDelta(delta, 1.0),
+                    occurredAt);
         }
     }
 

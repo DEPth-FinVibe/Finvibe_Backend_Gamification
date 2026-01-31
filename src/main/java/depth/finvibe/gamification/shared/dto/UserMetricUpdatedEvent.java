@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import depth.finvibe.gamification.modules.gamification.domain.enums.MetricEventType;
-import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricType;
 
 @Getter
 @Builder
@@ -17,7 +16,6 @@ import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricTy
 public class UserMetricUpdatedEvent {
     private String userId;
     private MetricEventType eventType;
-    private UserMetricType metricType;
     private Double delta;
     private Instant occurredAt;
 }
