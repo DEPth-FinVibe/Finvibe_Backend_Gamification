@@ -103,11 +103,7 @@ public class XpService implements XpCommandUseCase, XpQueryUseCase {
     public XpDto.Response getUserXp(UUID userId) {
         UserXp userXp = findOrCreateUserXp(userId);
 
-        return XpDto.Response.builder()
-                .userId(userXp.getUserId())
-                .totalXp(userXp.getTotalXp())
-                .level(userXp.getLevel())
-                .build();
+        return XpDto.Response.from(userXp);
     }
 
     private void updateUserXp(UUID userId, Long amount) {

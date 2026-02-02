@@ -2,6 +2,7 @@ package depth.finvibe.gamification.modules.gamification.dto;
 
 import java.util.UUID;
 
+import depth.finvibe.gamification.modules.gamification.domain.UserXp;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,10 +16,21 @@ public class XpDto {
     public static class Response {
         @Schema(description = "사용자 UUID")
         private UUID userId;
+        @Schema(description = "닉네임")
+        private String nickname;
         @Schema(description = "누적 경험치")
         private Long totalXp;
         @Schema(description = "현재 레벨")
         private Integer level;
+
+        public static Response from(UserXp userXp) {
+            return Response.builder()
+                    .userId(userXp.getUserId())
+                    .nickname(userXp.getNickname())
+                    .totalXp(userXp.getTotalXp())
+                    .level(userXp.getLevel())
+                    .build();
+        }
     }
 
     @Getter
