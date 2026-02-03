@@ -17,15 +17,18 @@ import depth.finvibe.gamification.modules.gamification.application.port.out.Chal
 import depth.finvibe.gamification.modules.gamification.application.port.out.MetricRepository;
 import depth.finvibe.gamification.modules.gamification.application.port.out.PersonalChallengeRepository;
 import depth.finvibe.gamification.modules.gamification.application.port.out.PersonalChallengeRewardRepository;
+import depth.finvibe.gamification.modules.gamification.application.port.out.UserMetricUpdatedEventPublisher;
 import depth.finvibe.gamification.modules.gamification.application.port.out.XpRewardEventPublisher;
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallenge;
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallengeReward;
 import depth.finvibe.gamification.modules.gamification.domain.enums.CollectPeriod;
+import depth.finvibe.gamification.modules.gamification.domain.enums.MetricEventType;
 import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricType;
 import depth.finvibe.gamification.modules.gamification.domain.vo.ChallengeCondition;
 import depth.finvibe.gamification.modules.gamification.domain.vo.Period;
 import depth.finvibe.gamification.modules.gamification.domain.vo.Reward;
 import depth.finvibe.gamification.modules.gamification.dto.ChallengeDto;
+import depth.finvibe.gamification.shared.dto.UserMetricUpdatedEvent;
 import depth.finvibe.gamification.shared.dto.XpRewardEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +63,9 @@ class ChallengeServiceTest {
 
     @Mock
     private XpRewardEventPublisher xpRewardEventPublisher;
+
+    @Mock
+    private UserMetricUpdatedEventPublisher userMetricUpdatedEventPublisher;
 
     @InjectMocks
     private ChallengeService challengeService;
@@ -107,7 +113,7 @@ class ChallengeServiceTest {
     }
 
     @Test
-    @DisplayName("개인 챌린지 보상 시 달성 유저에게 XP 이벤트를 발행한다")
+    @DisplayName("개인 챌린지 보상 시 달성 유저에게 XP와 메트릭 이벤트를 발행한다")
     void reward_personal_challenges_publishes_events() {
         PersonalChallenge challenge = PersonalChallenge.builder()
                 .id(10L)
@@ -130,6 +136,7 @@ class ChallengeServiceTest {
         verify(personalChallengeRewardRepository, times(2)).saveAll(captor.capture());
         assertThat(captor.getAllValues().stream().anyMatch(list -> list.size() == 2)).isTrue();
         verify(applicationEventPublisher, times(2)).publishEvent(any(XpRewardEvent.class));
+        verify(applicationEventPublisher, times(2)).publishEvent(any(UserMetricUpdatedEvent.class));
     }
 
     @Test
@@ -140,6 +147,20 @@ class ChallengeServiceTest {
         challengeService.handleXpRewardEventForKafka(event);
 
         verify(xpRewardEventPublisher).publishXpRewardEvent(event);
+    }
+
+    @Test
+    @DisplayName("트랜잭션 커밋 후 사용자 메트릭 Kafka 이벤트를 발행한다")
+    void handle_user_metric_updated_event_for_kafka() {
+        UserMetricUpdatedEvent event = UserMetricUpdatedEvent.builder()
+                .userId("user")
+                .eventType(MetricEventType.CHALLENGE_COMPLETED)
+                .delta(1.0)
+                .build();
+
+        challengeService.handleUserMetricUpdatedEventForKafka(event);
+
+        verify(userMetricUpdatedEventPublisher).publishUserMetricUpdatedEvent(event);
     }
 
     @Test

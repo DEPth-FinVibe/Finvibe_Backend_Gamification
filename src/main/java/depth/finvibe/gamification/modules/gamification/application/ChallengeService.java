@@ -1,29 +1,39 @@
 package depth.finvibe.gamification.modules.gamification.application;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import depth.finvibe.gamification.modules.gamification.application.port.out.*;
-import depth.finvibe.gamification.shared.dto.XpRewardEvent;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import depth.finvibe.gamification.modules.gamification.application.port.in.ChallengeCommandUseCase;
+import depth.finvibe.gamification.modules.gamification.application.port.out.ChallengeGenerator;
+import depth.finvibe.gamification.modules.gamification.application.port.out.MetricRepository;
+import depth.finvibe.gamification.modules.gamification.application.port.out.PersonalChallengeRepository;
+import depth.finvibe.gamification.modules.gamification.application.port.out.PersonalChallengeRewardRepository;
+import depth.finvibe.gamification.modules.gamification.application.port.out.UserMetricUpdatedEventPublisher;
+import depth.finvibe.gamification.modules.gamification.application.port.out.XpRewardEventPublisher;
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallenge;
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallengeReward;
-import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricType;
 import depth.finvibe.gamification.modules.gamification.domain.enums.CollectPeriod;
+import depth.finvibe.gamification.modules.gamification.domain.enums.MetricEventType;
+import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricType;
 import depth.finvibe.gamification.modules.gamification.domain.enums.WeeklyEventType;
 import depth.finvibe.gamification.modules.gamification.domain.vo.ChallengeCondition;
 import depth.finvibe.gamification.modules.gamification.domain.vo.Period;
 import depth.finvibe.gamification.modules.gamification.domain.vo.Reward;
 import depth.finvibe.gamification.modules.gamification.dto.ChallengeDto;
+import depth.finvibe.gamification.shared.dto.UserMetricUpdatedEvent;
+import depth.finvibe.gamification.shared.dto.XpRewardEvent;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +45,7 @@ public class ChallengeService implements ChallengeCommandUseCase {
     private final PersonalChallengeRewardRepository personalChallengeRewardRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final XpRewardEventPublisher xpRewardEventPublisher;
+    private final UserMetricUpdatedEventPublisher userMetricUpdatedEventPublisher;
 
     @Override
     @Transactional
@@ -90,6 +101,7 @@ public class ChallengeService implements ChallengeCommandUseCase {
         personalChallengeRewardRepository.saveAll(toSave);
 
         rewardXpToEachUsers(personalChallenge, achievedUserIds);
+        publishChallengeCompletedEvents(achievedUserIds);
     }
 
 
@@ -117,8 +129,15 @@ public class ChallengeService implements ChallengeCommandUseCase {
      * 트랜잭션 커밋 후 외부 Kafka 이벤트 발행
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Async
     public void handleXpRewardEventForKafka(XpRewardEvent event) {
         xpRewardEventPublisher.publishXpRewardEvent(event);
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Async
+    public void handleUserMetricUpdatedEventForKafka(UserMetricUpdatedEvent event) {
+        userMetricUpdatedEventPublisher.publishUserMetricUpdatedEvent(event);
     }
 
     private static PersonalChallengeReward toPersonalChallengeReward(PersonalChallenge personalChallenge, UUID userId) {
@@ -172,6 +191,22 @@ public class ChallengeService implements ChallengeCommandUseCase {
 
         String reason = String.format("[%s] 주간 이벤트 보상", getWeeklyEventTitle(eventType));
         userIds.forEach(userId -> publishXpRewardEvent(userId, reason, rewardXp));
+    }
+
+    private void publishChallengeCompletedEvents(List<UUID> achievedUserIds) {
+        if (achievedUserIds == null || achievedUserIds.isEmpty()) {
+            return;
+        }
+
+        Instant occurredAt = Instant.now();
+        achievedUserIds.forEach(userId -> applicationEventPublisher.publishEvent(
+                UserMetricUpdatedEvent.builder()
+                        .userId(userId.toString())
+                        .eventType(MetricEventType.CHALLENGE_COMPLETED)
+                        .delta(1.0)
+                        .occurredAt(occurredAt)
+                        .build()
+        ));
     }
 
     private static String getWeeklyEventTitle(WeeklyEventType eventType) {
