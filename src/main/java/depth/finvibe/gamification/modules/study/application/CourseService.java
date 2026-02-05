@@ -1,6 +1,8 @@
 package depth.finvibe.gamification.modules.study.application;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import depth.finvibe.gamification.boot.security.model.Requester;
 import depth.finvibe.gamification.modules.study.application.port.in.CourseCommandUseCase;
 import depth.finvibe.gamification.modules.study.application.port.in.CourseQueryUseCase;
+import depth.finvibe.gamification.modules.study.application.port.in.LessonQueryUseCase;
 import depth.finvibe.gamification.modules.study.application.port.out.*;
 import depth.finvibe.gamification.modules.study.domain.Course;
 import depth.finvibe.gamification.modules.study.domain.CourseDifficulty;
@@ -19,12 +22,13 @@ import depth.finvibe.gamification.modules.study.domain.LessonComplete;
 import depth.finvibe.gamification.modules.study.domain.LessonContent;
 import depth.finvibe.gamification.modules.study.dto.CourseDto;
 import depth.finvibe.gamification.modules.study.dto.GeneratorDto;
+import depth.finvibe.gamification.modules.study.dto.LessonDto;
 import depth.finvibe.gamification.shared.error.DomainException;
 import depth.finvibe.gamification.shared.error.GlobalErrorCode;
 
 @Service
 @RequiredArgsConstructor
-public class CourseService implements CourseCommandUseCase, CourseQueryUseCase {
+public class CourseService implements CourseCommandUseCase, CourseQueryUseCase, LessonQueryUseCase {
 
     private final UserServiceClient userServiceClient;
     private final KeywordGenerator keywordGenerator;
@@ -126,6 +130,16 @@ public class CourseService implements CourseCommandUseCase, CourseQueryUseCase {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<CourseDto.MyCourseResponse> getMyCourses(Requester requester) {
+        List<Course> courses = courseRepository.findByOwnerOrIsGlobalTrue(requester.getUuid());
+
+        return courses.stream()
+                .map(course -> toMyCourseResponse(course, requester))
+                .toList();
+    }
+
+    @Override
     @Transactional
     public void completeLesson(Long lessonId, Requester requester) {
         Lesson lesson = lessonRepository.findById(lessonId)
@@ -166,5 +180,33 @@ public class CourseService implements CourseCommandUseCase, CourseQueryUseCase {
         courseProgress.updateTotalLessonCount(course.getTotalLessonCount() == null ? 0 : course.getTotalLessonCount());
         courseProgress.updateCompletedLessonCount(completedCount);
         courseProgressRepository.save(courseProgress);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public LessonDto.LessonDetailResponse getLessonDetail(Long lessonId, Requester requester) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new DomainException(GlobalErrorCode.NOT_FOUND));
+
+        String lessonUserIdKey = LessonComplete.generateLessonUserIdKey(lessonId, requester.getUuid());
+        boolean completed = lessonCompleteRepository.existsByLessonUserIdKey(lessonUserIdKey);
+        String content = lesson.getContent() == null ? null : lesson.getContent().getContent();
+
+        return LessonDto.LessonDetailResponse.from(lesson, content, completed);
+    }
+
+    private CourseDto.MyCourseResponse toMyCourseResponse(Course course, Requester requester) {
+        List<Lesson> lessons = lessonRepository.findByCourseIdOrderByIdAsc(course.getId());
+        List<Long> completedLessonIds = lessonCompleteRepository.findLessonIdsByUserIdAndCourseId(
+                requester.getUuid(),
+                course.getId()
+        );
+        Set<Long> completedLessonIdSet = new HashSet<>(completedLessonIds);
+
+        List<LessonDto.LessonSummary> lessonSummaries = lessons.stream()
+                .map(lesson -> LessonDto.LessonSummary.from(lesson, completedLessonIdSet.contains(lesson.getId())))
+                .toList();
+
+        return CourseDto.MyCourseResponse.from(course, lessonSummaries);
     }
 }

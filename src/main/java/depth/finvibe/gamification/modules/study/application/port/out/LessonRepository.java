@@ -10,4 +10,5 @@ public interface LessonRepository {
     List<Lesson> saveAll(List<Lesson> lessons);
     Optional<Lesson> findById(Long id);
     long countByCourseId(Long courseId);
+    List<Lesson> findByCourseIdOrderByIdAsc(Long courseId);
 }

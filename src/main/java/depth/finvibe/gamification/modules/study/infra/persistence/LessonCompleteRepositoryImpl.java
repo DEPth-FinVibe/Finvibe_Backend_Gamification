@@ -1,5 +1,6 @@
 package depth.finvibe.gamification.modules.study.infra.persistence;
 
+import java.util.List;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,12 @@ public class LessonCompleteRepositoryImpl implements LessonCompleteRepository {
     @Override
     public long countByLessonCourseIdAndUserId(Long courseId, UUID userId) {
         return lessonCompleteJpaRepository.countByLessonCourseIdAndUserId(courseId, userId);
+    }
+
+    @Override
+    public List<Long> findLessonIdsByUserIdAndCourseId(UUID userId, Long courseId) {
+        return lessonCompleteJpaRepository.findByUserIdAndLessonCourseId(userId, courseId).stream()
+                .map(lessonComplete -> lessonComplete.getLesson().getId())
+                .toList();
     }
 }

@@ -33,4 +33,9 @@ public class LessonRepositoryImpl implements LessonRepository {
     public long countByCourseId(Long courseId) {
         return lessonJpaRepository.countByCourseId(courseId);
     }
+
+    @Override
+    public List<Lesson> findByCourseIdOrderByIdAsc(Long courseId) {
+        return lessonJpaRepository.findByCourseIdOrderByIdAsc(courseId);
+    }
 }
