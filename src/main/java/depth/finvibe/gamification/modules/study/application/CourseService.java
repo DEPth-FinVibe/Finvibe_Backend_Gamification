@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import depth.finvibe.gamification.shared.dto.XpRewardEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,8 @@ import depth.finvibe.gamification.modules.study.dto.GeneratorDto;
 import depth.finvibe.gamification.modules.study.dto.LessonDto;
 import depth.finvibe.gamification.shared.error.DomainException;
 import depth.finvibe.gamification.shared.error.GlobalErrorCode;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +41,7 @@ public class CourseService implements CourseCommandUseCase, CourseQueryUseCase, 
     private final LessonCompleteRepository lessonCompleteRepository;
     private final CourseProgressRepository courseProgressRepository;
     private final CourseRepository courseRepository;
+    private final XpRewardEventPublisher xpRewardEventPublisher;
 
     @Override
     @Transactional
@@ -180,6 +184,14 @@ public class CourseService implements CourseCommandUseCase, CourseQueryUseCase, 
         courseProgress.updateTotalLessonCount(course.getTotalLessonCount() == null ? 0 : course.getTotalLessonCount());
         courseProgress.updateCompletedLessonCount(completedCount);
         courseProgressRepository.save(courseProgress);
+
+        xpRewardEventPublisher.publishXpRewardEvent(
+                XpRewardEvent.of(
+                        requester.getUuid().toString(),
+                        lesson.getTitle() + " 수강 완료" ,
+                        100L
+                )
+        );
     }
 
     @Override

@@ -1,4 +1,4 @@
-package depth.finvibe.gamification.modules.study.infra.startup;
+package depth.finvibe.gamification.modules.study.infra.scheduler;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
