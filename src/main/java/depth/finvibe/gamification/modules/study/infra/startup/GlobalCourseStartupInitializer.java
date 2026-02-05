@@ -17,6 +17,7 @@ import tools.jackson.databind.ObjectMapper;
 import depth.finvibe.gamification.modules.study.application.port.out.CourseRepository;
 import depth.finvibe.gamification.modules.study.application.port.out.LessonRepository;
 import depth.finvibe.gamification.modules.study.domain.Course;
+import depth.finvibe.gamification.modules.study.domain.CourseDifficulty;
 import depth.finvibe.gamification.modules.study.domain.Lesson;
 import depth.finvibe.gamification.modules.study.domain.LessonContent;
 import depth.finvibe.gamification.shared.lock.DistributedLockManager;
@@ -66,6 +67,7 @@ public class GlobalCourseStartupInitializer implements ApplicationRunner {
         Course course = Course.builder()
                 .title(seedCourse.title)
                 .description(seedCourse.description)
+                .difficulty(seedCourse.difficulty)
                 .owner(null)
                 .isGlobal(true)
                 .build();
@@ -108,6 +110,7 @@ public class GlobalCourseStartupInitializer implements ApplicationRunner {
     private static class SeedCourse {
         public String title;
         public String description;
+        public CourseDifficulty difficulty;
         public List<SeedLesson> lessons;
     }
 
