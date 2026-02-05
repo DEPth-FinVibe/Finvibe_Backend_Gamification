@@ -1,0 +1,48 @@
+package depth.finvibe.gamification.modules.study.application;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import depth.finvibe.gamification.boot.security.model.Requester;
+import depth.finvibe.gamification.modules.study.application.port.in.MetricCommandUseCase;
+import depth.finvibe.gamification.modules.study.application.port.out.LessonRepository;
+import depth.finvibe.gamification.modules.study.application.port.out.StudyMetricRepository;
+import depth.finvibe.gamification.modules.study.domain.StudyMetric;
+import depth.finvibe.gamification.modules.study.domain.error.StudyErrorCode;
+import depth.finvibe.gamification.shared.error.DomainException;
+import depth.finvibe.gamification.shared.error.GlobalErrorCode;
+
+@Service
+@RequiredArgsConstructor
+public class StudyMetricService implements MetricCommandUseCase {
+    private static final Duration TEN_MINUTES = Duration.ofMinutes(10);
+
+    private final LessonRepository lessonRepository;
+    private final StudyMetricRepository studyMetricRepository;
+
+    @Override
+    @Transactional
+    public void tenMinutePing(Requester requester, Long lessonId) {
+        lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new DomainException(GlobalErrorCode.NOT_FOUND));
+
+        UUID userId = requester.getUuid();
+        StudyMetric studyMetric = studyMetricRepository.findByUserId(userId)
+                .orElseGet(() -> StudyMetric.of(userId));
+
+        Instant now = Instant.now();
+        Instant lastPingAt = studyMetric.getLastPingAt();
+        if (lastPingAt != null && lastPingAt.isAfter(now.minus(TEN_MINUTES))) {
+            throw new DomainException(StudyErrorCode.PING_TOO_FREQUENT);
+        }
+
+        studyMetric.addTimeSpentMinutes(10L);
+        studyMetric.updateLastPingAt(now);
+        studyMetricRepository.save(studyMetric);
+    }
+}

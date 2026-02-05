@@ -1,0 +1,32 @@
+package depth.finvibe.gamification.modules.study.api.external;
+
+import lombok.RequiredArgsConstructor;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import depth.finvibe.gamification.boot.security.model.AuthenticatedUser;
+import depth.finvibe.gamification.boot.security.model.Requester;
+import depth.finvibe.gamification.modules.study.application.port.in.MetricCommandUseCase;
+
+@Tag(name = "학습 지표", description = "학습 시간 기록 API")
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/study/lessons/{lessonId}/metrics")
+public class StudyMetricController {
+
+    private final MetricCommandUseCase metricCommandUseCase;
+
+    @Operation(summary = "10분 학습 핑", description = "10분 단위 학습 시간을 기록합니다")
+    @PostMapping("/ten-minute")
+    public void tenMinutePing(
+            @PathVariable Long lessonId,
+            @AuthenticatedUser Requester requester
+    ) {
+        metricCommandUseCase.tenMinutePing(requester, lessonId);
+    }
+}
