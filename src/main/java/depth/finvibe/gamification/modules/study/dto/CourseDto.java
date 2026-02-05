@@ -33,7 +33,7 @@ public class CourseDto {
     @Builder
     @Schema(name = "CourseContentPreviewResponse", description = "코스 소개 미리보기 응답")
     public static class ContentPreviewResponse {
-        @Schema(description = "생성된 코스 소개", example = "이 코스는 ETF의 기본 구조와 투자 원칙을 학습합니다.")
+        @Schema(description = "생성된 코스 소개", example = "이 코스는 ETF의 기본 구조와 투자 원칙을 학습합니다. (마크다운 형식)")
         private String content;
     }
 

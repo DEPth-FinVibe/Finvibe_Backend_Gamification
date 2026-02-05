@@ -47,7 +47,7 @@ public class LessonDto {
         private String title;
         @Schema(description = "레슨 설명", example = "ETF의 정의와 기본 구조를 학습합니다.")
         private String description;
-        @Schema(description = "레슨 본문", example = "ETF는 특정 지수를 추종하는 펀드입니다.")
+        @Schema(description = "레슨 본문", example = "ETF는 특정 지수를 추종하는 펀드입니다. (마크다운 형식)")
         private String content;
         @Schema(description = "완료 여부", example = "true")
         private boolean completed;
