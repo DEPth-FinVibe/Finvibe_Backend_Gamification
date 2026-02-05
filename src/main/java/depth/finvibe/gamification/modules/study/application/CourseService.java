@@ -1,33 +1,25 @@
 package depth.finvibe.gamification.modules.study.application;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-
-import depth.finvibe.gamification.shared.dto.XpRewardEvent;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import depth.finvibe.gamification.boot.security.model.Requester;
 import depth.finvibe.gamification.modules.study.application.port.in.CourseCommandUseCase;
 import depth.finvibe.gamification.modules.study.application.port.in.CourseQueryUseCase;
 import depth.finvibe.gamification.modules.study.application.port.in.LessonQueryUseCase;
 import depth.finvibe.gamification.modules.study.application.port.out.*;
-import depth.finvibe.gamification.modules.study.domain.Course;
-import depth.finvibe.gamification.modules.study.domain.CourseDifficulty;
-import depth.finvibe.gamification.modules.study.domain.CourseProgress;
-import depth.finvibe.gamification.modules.study.domain.Lesson;
-import depth.finvibe.gamification.modules.study.domain.LessonComplete;
-import depth.finvibe.gamification.modules.study.domain.LessonContent;
+import depth.finvibe.gamification.modules.study.domain.*;
 import depth.finvibe.gamification.modules.study.dto.CourseDto;
 import depth.finvibe.gamification.modules.study.dto.GeneratorDto;
 import depth.finvibe.gamification.modules.study.dto.LessonDto;
+import depth.finvibe.gamification.shared.dto.XpRewardEvent;
 import depth.finvibe.gamification.shared.error.DomainException;
 import depth.finvibe.gamification.shared.error.GlobalErrorCode;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
