@@ -13,10 +13,14 @@ import depth.finvibe.gamification.modules.study.application.port.in.CourseQueryU
 import depth.finvibe.gamification.modules.study.application.port.out.*;
 import depth.finvibe.gamification.modules.study.domain.Course;
 import depth.finvibe.gamification.modules.study.domain.CourseDifficulty;
+import depth.finvibe.gamification.modules.study.domain.CourseProgress;
 import depth.finvibe.gamification.modules.study.domain.Lesson;
+import depth.finvibe.gamification.modules.study.domain.LessonComplete;
 import depth.finvibe.gamification.modules.study.domain.LessonContent;
 import depth.finvibe.gamification.modules.study.dto.CourseDto;
 import depth.finvibe.gamification.modules.study.dto.GeneratorDto;
+import depth.finvibe.gamification.shared.error.DomainException;
+import depth.finvibe.gamification.shared.error.GlobalErrorCode;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +31,8 @@ public class CourseService implements CourseCommandUseCase, CourseQueryUseCase {
     private final CourseGenerator courseGenerator;
     private final LessonGenerator lessonGenerator;
     private final LessonRepository lessonRepository;
+    private final LessonCompleteRepository lessonCompleteRepository;
+    private final CourseProgressRepository courseProgressRepository;
     private final CourseRepository courseRepository;
 
     @Override
@@ -39,6 +45,7 @@ public class CourseService implements CourseCommandUseCase, CourseQueryUseCase {
 
         Course savedCourse = saveCourseFromRequest(request, requester, courseDescription);
         List<Lesson> savedLessons = generateLessonsFromIndices(lessonIndices, savedCourse);
+        savedCourse.updateTotalLessonCount(savedLessons.size());
 
         List<LessonContentTask> contentTasks = savedLessons.stream()
                 .map(lesson -> createLessonContentTask(request, savedCourse, lesson))
@@ -116,5 +123,48 @@ public class CourseService implements CourseCommandUseCase, CourseQueryUseCase {
         String previewContent = courseGenerator.generateCoursePreview(request.getTitle(), request.getKeywords());
 
         return CourseDto.ContentPreviewResponse.of(previewContent);
+    }
+
+    @Override
+    @Transactional
+    public void completeLesson(Long lessonId, Requester requester) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new DomainException(GlobalErrorCode.NOT_FOUND));
+
+        String lessonUserIdKey = LessonComplete.generateLessonUserIdKey(lessonId, requester.getUuid());
+        if (lessonCompleteRepository.existsByLessonUserIdKey(lessonUserIdKey)) {
+            return;
+        }
+
+        LessonComplete lessonComplete = LessonComplete.of(lesson, requester.getUuid());
+        lessonCompleteRepository.save(lessonComplete);
+
+        Course course = lesson.getCourse();
+        if (course == null) {
+            return;
+        }
+
+        Integer totalLessonCount = course.getTotalLessonCount();
+        if (totalLessonCount == null || totalLessonCount == 0) {
+            int totalCount = (int) lessonRepository.countByCourseId(course.getId());
+            course.updateTotalLessonCount(totalCount);
+        }
+
+        int completedCount = (int) lessonCompleteRepository.countByLessonCourseIdAndUserId(
+                course.getId(),
+                requester.getUuid()
+        );
+
+        String courseUserIdKey = CourseProgress.generateCourseUserIdKey(course.getId(), requester.getUuid());
+        CourseProgress courseProgress = courseProgressRepository.findByCourseUserIdKey(courseUserIdKey)
+                .orElseGet(() -> CourseProgress.of(
+                        course,
+                        requester.getUuid(),
+                        course.getTotalLessonCount() == null ? 0 : course.getTotalLessonCount(),
+                        0
+                ));
+        courseProgress.updateTotalLessonCount(course.getTotalLessonCount() == null ? 0 : course.getTotalLessonCount());
+        courseProgress.updateCompletedLessonCount(completedCount);
+        courseProgressRepository.save(courseProgress);
     }
 }

@@ -1,6 +1,7 @@
 package depth.finvibe.gamification.modules.study.infra.persistence;
 
 import java.util.List;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -21,5 +22,15 @@ public class LessonRepositoryImpl implements LessonRepository {
     @Override
     public List<Lesson> saveAll(List<Lesson> lessons) {
         return lessonJpaRepository.saveAll(lessons);
+    }
+
+    @Override
+    public Optional<Lesson> findById(Long id) {
+        return lessonJpaRepository.findById(id);
+    }
+
+    @Override
+    public long countByCourseId(Long courseId) {
+        return lessonJpaRepository.countByCourseId(courseId);
     }
 }

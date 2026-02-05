@@ -36,6 +36,8 @@ public class Course extends TimeStampedBaseEntity {
 
     private Boolean isGlobal;
 
+    private Integer totalLessonCount;
+
     public static Course of(String title, String description, CourseDifficulty difficulty, UUID owner) {
         return Course.builder()
                 .title(title)
@@ -43,6 +45,11 @@ public class Course extends TimeStampedBaseEntity {
                 .difficulty(difficulty)
                 .owner(owner)
                 .isGlobal(false)
+                .totalLessonCount(0)
                 .build();
+    }
+
+    public void updateTotalLessonCount(int totalLessonCount) {
+        this.totalLessonCount = totalLessonCount;
     }
 }
