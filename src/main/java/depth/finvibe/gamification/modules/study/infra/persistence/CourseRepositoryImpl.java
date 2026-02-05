@@ -15,4 +15,9 @@ public class CourseRepositoryImpl implements CourseRepository {
     public Course save(Course course) {
         return courseJpaRepository.save(course);
     }
+
+    @Override
+    public boolean existsByIsGlobalTrue() {
+        return courseJpaRepository.existsByIsGlobalTrue();
+    }
 }
