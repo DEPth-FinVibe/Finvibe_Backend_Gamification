@@ -56,7 +56,7 @@ public class ChallengeGeneratorImpl implements ChallengeGenerator {
     private final ResourceLoader resourceLoader;
 
     public ChallengeGeneratorImpl(
-            ChatModel chatModel,
+            @Qualifier("chatModel") ChatModel chatModel,
             ObjectMapper objectMapper,
             @Qualifier("webApplicationContext") ResourceLoader resourceLoader
     ) {

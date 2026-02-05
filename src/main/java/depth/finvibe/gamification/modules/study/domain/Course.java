@@ -30,12 +30,12 @@ public class Course extends TimeStampedBaseEntity {
 
     private Boolean isGlobal;
 
-    public static Course of(String title, String description, UUID owner, Boolean isGlobal) {
+    public static Course of(String title, String description, UUID owner) {
         return Course.builder()
                 .title(title)
                 .description(description)
                 .owner(owner)
-                .isGlobal(isGlobal)
+                .isGlobal(false)
                 .build();
     }
 }

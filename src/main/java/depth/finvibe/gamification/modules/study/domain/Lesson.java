@@ -20,6 +20,21 @@ public class Lesson {
 
     private String title;
 
-    @Lob
-    private String content;
+    private String description;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private LessonContent content;
+
+    public void makeRelationshipWith(LessonContent content) {
+        this.content = content;
+        content.setLesson(this);
+    }
+
+    public static Lesson of(Course course, String title, String description) {
+        return Lesson.builder()
+                .course(course)
+                .title(title)
+                .description(description)
+                .build();
+    }
 }
