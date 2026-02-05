@@ -10,12 +10,11 @@ import depth.finvibe.gamification.modules.study.domain.LessonContent;
 import depth.finvibe.gamification.modules.study.dto.CourseDto;
 import depth.finvibe.gamification.modules.study.dto.GeneratorDto;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -39,25 +38,47 @@ public class CourseService implements CourseCommandUseCase, CourseQueryUseCase {
         Course savedCourse = saveCourseFromRequest(request, requester, courseDescription);
         List<Lesson> savedLessons = generateLessonsFromIndices(lessonIndices, savedCourse);
 
-        savedLessons.forEach(generateContentForLesson(request, savedCourse));
+        List<LessonContentTask> contentTasks = savedLessons.stream()
+                .map(lesson -> createLessonContentTask(request, savedCourse, lesson))
+                .toList();
+
+        waitForAllContent(contentTasks);
+        applyLessonContents(contentTasks);
     }
 
-    private @NonNull Consumer<Lesson> generateContentForLesson(CourseDto.CreateRequest request, Course savedCourse) {
-        return it -> {
+    private LessonContentTask createLessonContentTask(
+            CourseDto.CreateRequest request,
+            Course savedCourse,
+            Lesson lesson
+    ) {
+        GeneratorDto.LessonContentCreateContext context = GeneratorDto.LessonContentCreateContext.builder()
+                .courseTitle(savedCourse.getTitle())
+                .keywords(request.getKeywords())
+                .lessonTitle(lesson.getTitle())
+                .lessonDescription(lesson.getDescription())
+                .build();
 
-            GeneratorDto.LessonContentCreateContext context = GeneratorDto.LessonContentCreateContext.builder()
-                    .courseTitle(savedCourse.getTitle())
-                    .keywords(request.getKeywords())
-                    .lessonTitle(it.getTitle())
-                    .lessonDescription(it.getDescription())
-                    .build();
+        CompletableFuture<String> future = lessonGenerator.generateLessonContent(context);
+        return new LessonContentTask(lesson, future);
+    }
 
-            String content = lessonGenerator.generateLessonContent(context);
+    private void waitForAllContent(List<LessonContentTask> tasks) {
+        CompletableFuture<?>[] futures = tasks.stream()
+                .map(LessonContentTask::future)
+                .toArray(CompletableFuture[]::new);
 
+        CompletableFuture.allOf(futures).join();
+    }
+
+    private void applyLessonContents(List<LessonContentTask> tasks) {
+        tasks.forEach(task -> {
+            String content = task.future().join();
             LessonContent lessonContent = LessonContent.of(content);
-            it.makeRelationshipWith(lessonContent);
-        };
+            task.lesson().makeRelationshipWith(lessonContent);
+        });
     }
+
+    private record LessonContentTask(Lesson lesson, CompletableFuture<String> future) {}
 
     private List<Lesson> generateLessonsFromIndices(List<GeneratorDto.LessonIndex> lessonIndices, Course savedCourse) {
         List<Lesson> lessons = lessonIndices.stream()

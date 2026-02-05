@@ -3,6 +3,8 @@ package depth.finvibe.gamification.modules.study.infra.llm;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
@@ -58,15 +60,18 @@ public class LessonGeneratorImpl implements LessonGenerator {
     private final ChatModel chatModel;
     private final ObjectMapper objectMapper;
     private final ResourceLoader resourceLoader;
+    private final Executor lessonContentExecutor;
 
     public LessonGeneratorImpl(
             @Qualifier("chatModel") ChatModel chatModel,
             ObjectMapper objectMapper,
-            @Qualifier("webApplicationContext") ResourceLoader resourceLoader
+            @Qualifier("webApplicationContext") ResourceLoader resourceLoader,
+            @Qualifier("lessonContentExecutor") Executor lessonContentExecutor
     ) {
         this.chatModel = chatModel;
         this.objectMapper = objectMapper;
         this.resourceLoader = resourceLoader;
+        this.lessonContentExecutor = lessonContentExecutor;
     }
 
     @Override
@@ -89,7 +94,11 @@ public class LessonGeneratorImpl implements LessonGenerator {
     }
 
     @Override
-    public String generateLessonContent(GeneratorDto.LessonContentCreateContext context) {
+    public CompletableFuture<String> generateLessonContent(GeneratorDto.LessonContentCreateContext context) {
+        return CompletableFuture.supplyAsync(() -> generateLessonContentSync(context), lessonContentExecutor);
+    }
+
+    private String generateLessonContentSync(GeneratorDto.LessonContentCreateContext context) {
         for (int attempt = 0; attempt <= MAX_RETRY_COUNT; attempt++) {
             try {
                 String parsed = requestLessonContent(context);
