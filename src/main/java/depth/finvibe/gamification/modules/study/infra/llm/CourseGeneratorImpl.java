@@ -14,6 +14,7 @@ import dev.langchain4j.model.chat.request.ResponseFormatType;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.model.chat.request.json.JsonSchema;
 import dev.langchain4j.model.chat.response.ChatResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -26,6 +27,7 @@ import depth.finvibe.gamification.modules.study.application.port.out.CourseGener
 import depth.finvibe.gamification.modules.study.dto.GeneratorDto;
 
 @Component
+@RequiredArgsConstructor
 public class CourseGeneratorImpl implements CourseGenerator {
     private static final int MAX_RETRY_COUNT = 2;
     private static final String SYSTEM_PROMPT_PATH = "classpath:prompts/study-course-generation-system.txt";
@@ -51,19 +53,11 @@ public class CourseGeneratorImpl implements CourseGenerator {
             .build();
     private static final TypeReference<Map<String, String>> RESPONSE_TYPE = new TypeReference<>() {};
 
+    @Qualifier("chatModel")
     private final ChatModel chatModel;
     private final ObjectMapper objectMapper;
+    @Qualifier("webApplicationContext")
     private final ResourceLoader resourceLoader;
-
-    public CourseGeneratorImpl(
-            @Qualifier("chatModel") ChatModel chatModel,
-            ObjectMapper objectMapper,
-            @Qualifier("webApplicationContext") ResourceLoader resourceLoader
-    ) {
-        this.chatModel = chatModel;
-        this.objectMapper = objectMapper;
-        this.resourceLoader = resourceLoader;
-    }
 
     @Override
     public String generateCoursePreview(String title, List<String> keywords) {
