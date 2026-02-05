@@ -1,6 +1,5 @@
 package depth.finvibe.gamification.modules.study.dto;
 
-import depth.finvibe.gamification.modules.study.domain.Lesson;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,13 +15,6 @@ public class GeneratorDto {
     public static class LessonIndex {
         private String title;
         private String description;
-
-        public static LessonIndex from(Lesson lesson) {
-            return LessonIndex.builder()
-                    .title(lesson.getTitle())
-                    .description(lesson.getDescription())
-                    .build();
-        }
     }
 
     @AllArgsConstructor

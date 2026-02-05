@@ -1,0 +1,4 @@
+코스 제목: {{course_title}}
+키워드: {{keywords}}
+3~5개의 레슨으로 구성된 인덱스를 생성하세요.
+JSON 배열 반환: {"title": "...", "description": "..."} 객체들의 배열

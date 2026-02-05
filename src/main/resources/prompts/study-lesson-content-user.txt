@@ -1,0 +1,6 @@
+코스 제목: {{course_title}}
+키워드: {{keywords}}
+레슨 제목: {{lesson_title}}
+레슨 설명: {{lesson_description}}
+6~10개의 불릿 포인트로 간결한 레슨 콘텐츠를 작성하세요.
+JSON 반환: {"content": "..."}

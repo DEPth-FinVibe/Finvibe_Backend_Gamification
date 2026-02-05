@@ -1,0 +1,6 @@
+코스 제목: {{title}}
+키워드: {{keywords}}
+레슨 개요:
+{{lesson_indices}}
+개요를 활용해 명확한 코스 설명(4~6문장)을 작성하세요.
+JSON 반환: {"description": "..."}
