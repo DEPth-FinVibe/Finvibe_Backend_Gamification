@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("studyXpRewardEventPublisher")
 @RequiredArgsConstructor
 public class XpRewardEventPublisherImpl implements XpRewardEventPublisher {
     private static final String REWARD_XP_TOPIC = "gamification.reward-xp.v1";

@@ -20,6 +20,7 @@ public class Lesson {
 
     private String title;
 
+    @Column(length = 2000)
     private String description;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

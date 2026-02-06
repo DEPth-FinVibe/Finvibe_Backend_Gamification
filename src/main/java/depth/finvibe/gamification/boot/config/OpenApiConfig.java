@@ -37,6 +37,16 @@ public class OpenApiConfig {
                 .build();
     }
 
+    @Bean
+    public GroupedOpenApi studyApi() {
+        return GroupedOpenApi.builder()
+                .group("study")
+                .pathsToMatch("/study/**")
+                .pathsToExclude("/internal/**")
+                .addOpenApiCustomizer(prefixPaths("/api/study"))
+                .build();
+    }
+
     private OpenApiCustomizer prefixPaths(String prefix) {
         return openApi -> {
             if (openApi.getPaths() == null || openApi.getPaths().isEmpty()) {
