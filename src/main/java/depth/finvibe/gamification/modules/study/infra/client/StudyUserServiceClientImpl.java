@@ -13,7 +13,7 @@ import tools.jackson.databind.ObjectMapper;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class UserServiceClientImpl implements UserServiceClient {
+public class StudyUserServiceClientImpl implements UserServiceClient {
     private final RestClient restClient = RestClient.builder()
             .baseUrl("http://user")
             .build();

@@ -11,11 +11,11 @@ import org.springframework.web.client.RestClientException;
 import depth.finvibe.gamification.modules.gamification.application.port.out.UserServiceClient;
 
 @Component
-public class UserServiceClientImpl implements UserServiceClient {
+public class GamificationUserServiceClientImpl implements UserServiceClient {
 
     private final RestClient restClient;
 
-    public UserServiceClientImpl(
+    public GamificationUserServiceClientImpl(
 
     ) {
         this.restClient = RestClient.builder().baseUrl("http://user").build();
