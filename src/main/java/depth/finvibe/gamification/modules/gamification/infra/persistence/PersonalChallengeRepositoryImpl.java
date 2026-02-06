@@ -39,4 +39,9 @@ public class PersonalChallengeRepositoryImpl implements PersonalChallengeReposit
                 period.getEndDate()
         );
     }
+
+    @Override
+    public List<PersonalChallenge> findAllByIds(List<Long> ids) {
+        return personalChallengeJpaRepository.findAllById(ids);
+    }
 }

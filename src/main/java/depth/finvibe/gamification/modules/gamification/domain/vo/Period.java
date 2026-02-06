@@ -41,4 +41,10 @@ public class Period {
         LocalDate endOfWeek = startOfWeek.plusDays(6);
         return Period.of(startOfWeek, endOfWeek);
     }
+
+    public static Period ofMonth(int year, int month) {
+        LocalDate startOfMonth = LocalDate.of(year, month, 1);
+        LocalDate endOfMonth = startOfMonth.plusMonths(1).minusDays(1);
+        return Period.of(startOfMonth, endOfMonth);
+    }
 }

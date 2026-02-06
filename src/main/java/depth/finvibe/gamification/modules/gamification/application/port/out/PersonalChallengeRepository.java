@@ -13,4 +13,6 @@ public interface PersonalChallengeRepository {
     List<PersonalChallenge> findAllByPeriod(Period period);
 
     boolean existsByPeriod(Period period);
+
+    List<PersonalChallenge> findAllByIds(List<Long> ids);
 }

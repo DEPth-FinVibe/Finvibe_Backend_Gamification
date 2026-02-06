@@ -3,7 +3,9 @@ package depth.finvibe.gamification.modules.gamification.application;
 import depth.finvibe.gamification.modules.gamification.application.port.in.ChallengeQueryUseCase;
 import depth.finvibe.gamification.modules.gamification.application.port.out.MetricRepository;
 import depth.finvibe.gamification.modules.gamification.application.port.out.PersonalChallengeRepository;
+import depth.finvibe.gamification.modules.gamification.application.port.out.PersonalChallengeRewardRepository;
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallenge;
+import depth.finvibe.gamification.modules.gamification.domain.PersonalChallengeReward;
 import depth.finvibe.gamification.modules.gamification.domain.UserMetric;
 import depth.finvibe.gamification.modules.gamification.domain.enums.CollectPeriod;
 import depth.finvibe.gamification.modules.gamification.domain.enums.UserMetricType;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -26,6 +29,7 @@ import java.util.stream.Collectors;
 public class ChallengeQueryService implements ChallengeQueryUseCase {
 
     private final PersonalChallengeRepository personalChallengeRepository;
+    private final PersonalChallengeRewardRepository personalChallengeRewardRepository;
     private final MetricRepository metricRepository;
 
     @Override
@@ -83,5 +87,36 @@ public class ChallengeQueryService implements ChallengeQueryUseCase {
 
     private boolean isWeeklyMetric(UserMetricType metricType) {
         return metricType != null && metricType.isWeeklyCollect();
+    }
+
+    @Override
+    public List<ChallengeDto.ChallengeHistoryResponse> getCompletedChallenges(UUID userId, int year, int month) {
+        Period period = Period.ofMonth(year, month);
+        List<PersonalChallengeReward> rewards = personalChallengeRewardRepository.findAllByUserIdAndPeriod(userId, period);
+
+        if (rewards.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> challengeIds = rewards.stream()
+                .map(PersonalChallengeReward::getChallengeId)
+                .toList();
+
+        Map<Long, PersonalChallenge> challengeMap = personalChallengeRepository.findAllByIds(challengeIds).stream()
+                .collect(Collectors.toMap(PersonalChallenge::getId, challenge -> challenge));
+
+        return rewards.stream()
+                .map(reward -> {
+                    PersonalChallenge challenge = challengeMap.get(reward.getChallengeId());
+                    if (challenge == null) {
+                        return null;
+                    }
+                    LocalDate completedAt = reward.getCreatedAt() != null
+                            ? reward.getCreatedAt().toLocalDate()
+                            : challenge.getPeriod().getEndDate();
+                    return ChallengeDto.ChallengeHistoryResponse.from(challenge, completedAt);
+                })
+                .filter(Objects::nonNull)
+                .toList();
     }
 }

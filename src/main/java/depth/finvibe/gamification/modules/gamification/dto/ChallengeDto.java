@@ -82,4 +82,44 @@ public class ChallengeDto {
                     .build();
         }
     }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @Builder
+    @Schema(description = "챌린지 완료 내역 응답")
+    public static class ChallengeHistoryResponse {
+        @Schema(description = "챌린지 식별자")
+        private Long challengeId;
+        @Schema(description = "챌린지 제목")
+        private String title;
+        @Schema(description = "챌린지 설명")
+        private String description;
+        @Schema(description = "측정 지표 타입")
+        private UserMetricType metricType;
+        @Schema(description = "목표 값")
+        private Double targetValue;
+        @Schema(description = "보상 경험치")
+        private Long rewardXp;
+        @Schema(description = "챌린지 시작일")
+        private LocalDate startDate;
+        @Schema(description = "챌린지 종료일")
+        private LocalDate endDate;
+        @Schema(description = "완료 시점")
+        private LocalDate completedAt;
+
+        public static ChallengeHistoryResponse from(PersonalChallenge challenge, LocalDate completedAt) {
+            return ChallengeHistoryResponse.builder()
+                    .challengeId(challenge.getId())
+                    .title(challenge.getTitle())
+                    .description(challenge.getDescription())
+                    .metricType(challenge.getCondition().getMetricType())
+                    .targetValue(challenge.getCondition().getTargetValue())
+                    .rewardXp(challenge.getReward().getRewardXp())
+                    .startDate(challenge.getPeriod().getStartDate())
+                    .endDate(challenge.getPeriod().getEndDate())
+                    .completedAt(completedAt)
+                    .build();
+        }
+    }
 }
