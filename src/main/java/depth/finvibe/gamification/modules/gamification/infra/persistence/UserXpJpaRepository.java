@@ -12,4 +12,6 @@ public interface UserXpJpaRepository extends JpaRepository<UserXp, UUID> {
     Optional<UserXp> findByUserId(UUID userId);
 
     List<UserXp> findAllByUserIdInOrderByWeeklyXpDesc(List<UUID> userIds);
+
+    List<UserXp> findAllByUserIdIn(List<UUID> userIds);
 }

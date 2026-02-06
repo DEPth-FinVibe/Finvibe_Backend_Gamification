@@ -57,4 +57,13 @@ public class GamificationScheduler {
         metricCommandUseCase.resetWeeklyMetrics();
         challengeCommandUseCase.generatePersonalChallenges();
     }
+
+    /**
+     * 10분마다 전체 사용자 주간/월간 XP 랭킹 스냅샷을 갱신합니다.
+     */
+    @Scheduled(cron = "0 */10 * * * *", zone = "Asia/Seoul")
+    @SchedulerLock(name = "gamification_refreshUserRankingSnapshots", lockAtMostFor = "PT30M")
+    public void refreshUserRankingSnapshots() {
+        xpCommandUseCase.refreshUserRankingSnapshots();
+    }
 }

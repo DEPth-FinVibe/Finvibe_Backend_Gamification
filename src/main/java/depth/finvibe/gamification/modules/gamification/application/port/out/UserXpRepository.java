@@ -12,4 +12,5 @@ public interface UserXpRepository {
     List<UserXp> findAll();
     Optional<UserXp> findByUserId(UUID userId);
     List<UserXp> findAllByUserIdInOrderByWeeklyXpDesc(List<UUID> userIds);
+    List<UserXp> findAllByUserIdIn(List<UUID> userIds);
 }

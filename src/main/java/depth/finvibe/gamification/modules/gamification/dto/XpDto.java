@@ -64,4 +64,24 @@ public class XpDto {
         @Schema(description = "주간 기여 경험치")
         private Long weeklyContributionXp;
     }
+
+    @Getter
+    @Builder
+    @Schema(description = "전체 사용자 XP 랭킹")
+    public static class UserRankingResponse {
+        @Schema(description = "사용자 UUID")
+        private UUID userId;
+        @Schema(description = "닉네임")
+        private String nickname;
+        @Schema(description = "순위")
+        private Integer ranking;
+        @Schema(description = "현재 누적 XP")
+        private Long currentXp;
+        @Schema(description = "현재 기간 XP")
+        private Long periodXp;
+        @Schema(description = "이전 기간 XP")
+        private Long previousPeriodXp;
+        @Schema(description = "이전 기간 대비 상승률(%)")
+        private Double growthRate;
+    }
 }

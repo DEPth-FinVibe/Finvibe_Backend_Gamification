@@ -17,4 +17,9 @@ public interface XpCommandUseCase {
      * 매주 정해진 시간에 스케줄러에 의해 호출됩니다. (월요일 00시 00분)
      */
     void updateWeeklySquadRanking();
+
+    /**
+     * 전체 사용자 주간/월간 XP 랭킹 스냅샷을 갱신합니다.
+     */
+    void refreshUserRankingSnapshots();
 }

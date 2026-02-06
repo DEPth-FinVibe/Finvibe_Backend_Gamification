@@ -1,6 +1,7 @@
 package depth.finvibe.gamification.modules.gamification.application;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ import depth.finvibe.gamification.modules.gamification.application.port.out.Squa
 import depth.finvibe.gamification.modules.gamification.application.port.out.UserServiceClient;
 import depth.finvibe.gamification.modules.gamification.application.port.out.UserSquadRepository;
 import depth.finvibe.gamification.modules.gamification.application.port.out.UserXpAwardRepository;
+import depth.finvibe.gamification.modules.gamification.application.port.out.UserXpRankingSnapshotRepository;
 import depth.finvibe.gamification.modules.gamification.application.port.out.UserXpRepository;
 import depth.finvibe.gamification.modules.gamification.domain.Squad;
 import depth.finvibe.gamification.modules.gamification.domain.SquadRankingHistory;
@@ -24,10 +26,13 @@ import depth.finvibe.gamification.modules.gamification.domain.SquadXp;
 import depth.finvibe.gamification.modules.gamification.domain.UserSquad;
 import depth.finvibe.gamification.modules.gamification.domain.UserXp;
 import depth.finvibe.gamification.modules.gamification.domain.UserXpAward;
+import depth.finvibe.gamification.modules.gamification.domain.UserXpRankingSnapshot;
+import depth.finvibe.gamification.modules.gamification.domain.enums.RankingPeriod;
 import depth.finvibe.gamification.modules.gamification.dto.XpDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -43,6 +48,9 @@ class XpServiceTest {
 
     @Mock
     private UserXpRepository userXpRepository;
+
+    @Mock
+    private UserXpRankingSnapshotRepository userXpRankingSnapshotRepository;
 
     @Mock
     private SquadXpRepository squadXpRepository;
@@ -190,5 +198,96 @@ class XpServiceTest {
         assertThat(response.getUserId()).isEqualTo(userId);
         assertThat(response.getTotalXp()).isEqualTo(500L);
         assertThat(response.getLevel()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("전체 유저 주간 XP 랭킹 조회 시 현재 XP와 상승률을 반환한다")
+    void get_user_xp_ranking_weekly_returns_growth_rate() {
+        UUID userA = UUID.randomUUID();
+        UUID userB = UUID.randomUUID();
+
+        UserXpRankingSnapshot snapshotA = UserXpRankingSnapshot.of(
+                RankingPeriod.WEEKLY,
+                java.time.LocalDate.now(),
+                java.time.LocalDate.now().plusDays(6),
+                userA,
+                "유저A",
+                1,
+                5000L,
+                300L,
+                150L,
+                100.0,
+                java.time.LocalDateTime.now());
+        UserXpRankingSnapshot snapshotB = UserXpRankingSnapshot.of(
+                RankingPeriod.WEEKLY,
+                java.time.LocalDate.now(),
+                java.time.LocalDate.now().plusDays(6),
+                userB,
+                "유저B",
+                2,
+                2200L,
+                120L,
+                100L,
+                20.0,
+                java.time.LocalDateTime.now());
+
+        when(userXpRankingSnapshotRepository.findTopByPeriod(eq(RankingPeriod.WEEKLY), any(), eq(2)))
+                .thenReturn(List.of(snapshotA, snapshotB));
+
+        List<XpDto.UserRankingResponse> result = xpService.getUserXpRanking(RankingPeriod.WEEKLY, 2);
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getUserId()).isEqualTo(userA);
+        assertThat(result.get(0).getRanking()).isEqualTo(1);
+        assertThat(result.get(0).getCurrentXp()).isEqualTo(5000L);
+        assertThat(result.get(0).getPeriodXp()).isEqualTo(300L);
+        assertThat(result.get(0).getPreviousPeriodXp()).isEqualTo(150L);
+        assertThat(result.get(0).getGrowthRate()).isEqualTo(100.0);
+    }
+
+    @Test
+    @DisplayName("전체 유저 월간 XP 랭킹 조회 시 이전 기간 XP가 0이면 상승률은 null이다")
+    void get_user_xp_ranking_monthly_returns_null_growth_when_previous_is_zero() {
+        UUID userA = UUID.randomUUID();
+
+        UserXpRankingSnapshot snapshot = UserXpRankingSnapshot.of(
+                RankingPeriod.MONTHLY,
+                java.time.LocalDate.now().withDayOfMonth(1),
+                java.time.LocalDate.now().withDayOfMonth(1).plusMonths(1).minusDays(1),
+                userA,
+                "유저A",
+                1,
+                8000L,
+                800L,
+                0L,
+                null,
+                java.time.LocalDateTime.now());
+
+        when(userXpRankingSnapshotRepository.findTopByPeriod(eq(RankingPeriod.MONTHLY), any(), eq(10)))
+                .thenReturn(List.of(snapshot));
+
+        List<XpDto.UserRankingResponse> result = xpService.getUserXpRanking(RankingPeriod.MONTHLY, 10);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getPeriodXp()).isEqualTo(800L);
+        assertThat(result.get(0).getPreviousPeriodXp()).isEqualTo(0L);
+        assertThat(result.get(0).getGrowthRate()).isNull();
+    }
+
+    @Test
+    @DisplayName("랭킹 스냅샷 갱신 시 주간/월간 스냅샷을 저장한다")
+    void refresh_user_ranking_snapshots_saves_weekly_and_monthly() {
+        UUID userId = UUID.randomUUID();
+
+        when(userXpAwardRepository.findUserPeriodXpRankingBetween(any(), any(), anyInt()))
+                .thenReturn(List.of(new UserXpAwardRepository.UserPeriodXp(userId, 100L)));
+        when(userXpAwardRepository.findUserPeriodXpMapBetween(eq(List.of(userId)), any(), any()))
+                .thenReturn(Map.of(userId, 50L));
+        when(userXpRepository.findAllByUserIdIn(List.of(userId)))
+                .thenReturn(List.of(UserXp.builder().userId(userId).nickname("유저").totalXp(1000L).build()));
+
+        xpService.refreshUserRankingSnapshots();
+
+        verify(userXpRankingSnapshotRepository, times(2)).replaceSnapshots(any(), any(), anyList());
     }
 }
