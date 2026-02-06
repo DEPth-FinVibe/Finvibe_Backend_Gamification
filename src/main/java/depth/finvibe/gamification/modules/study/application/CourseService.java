@@ -8,6 +8,7 @@ import depth.finvibe.gamification.modules.study.application.port.out.*;
 import depth.finvibe.gamification.modules.study.domain.*;
 import depth.finvibe.gamification.modules.study.dto.CourseDto;
 import depth.finvibe.gamification.modules.study.dto.GeneratorDto;
+import depth.finvibe.gamification.modules.study.dto.LessonCompletionDto;
 import depth.finvibe.gamification.modules.study.dto.LessonDto;
 import depth.finvibe.gamification.shared.dto.XpRewardEvent;
 import depth.finvibe.gamification.shared.error.DomainException;
@@ -16,6 +17,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +29,8 @@ import java.util.concurrent.CompletableFuture;
 @Service
 @RequiredArgsConstructor
 public class CourseService implements CourseCommandUseCase, CourseQueryUseCase, LessonQueryUseCase {
+
+    private static final ZoneId DEFAULT_ZONE = ZoneId.of("Asia/Seoul");
 
     private final UserServiceClient userServiceClient;
     private final KeywordGenerator keywordGenerator;
@@ -197,6 +204,42 @@ public class CourseService implements CourseCommandUseCase, CourseQueryUseCase, 
         String content = lesson.getContent() == null ? null : lesson.getContent().getContent();
 
         return LessonDto.LessonDetailResponse.from(lesson, content, completed);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public LessonCompletionDto.MonthlyLessonCompletionResponse getMonthlyLessonCompletions(
+            Requester requester,
+            String month
+    ) {
+        YearMonth yearMonth = parseYearMonth(month);
+        LocalDateTime start = yearMonth.atDay(1).atStartOfDay(DEFAULT_ZONE).toLocalDateTime();
+        LocalDateTime end = yearMonth.plusMonths(1).atDay(1).atStartOfDay(DEFAULT_ZONE).toLocalDateTime().minusNanos(1);
+
+        List<LessonCompletionDto.LessonCompletionItem> items = lessonCompleteRepository
+                .findByUserIdAndCreatedAtBetween(requester.getUuid(), start, end)
+                .stream()
+                .map(lessonComplete -> LessonCompletionDto.LessonCompletionItem.builder()
+                        .lessonId(lessonComplete.getLesson().getId())
+                        .completedAt(lessonComplete.getCreatedAt())
+                        .build())
+                .toList();
+
+        return LessonCompletionDto.MonthlyLessonCompletionResponse.builder()
+                .month(yearMonth.toString())
+                .items(items)
+                .build();
+    }
+
+    private YearMonth parseYearMonth(String month) {
+        if (month == null || month.isBlank()) {
+            throw new DomainException(GlobalErrorCode.INVALID_REQUEST);
+        }
+        try {
+            return YearMonth.parse(month);
+        } catch (DateTimeParseException ex) {
+            throw new DomainException(GlobalErrorCode.INVALID_REQUEST);
+        }
     }
 
     private CourseDto.MyCourseResponse toMyCourseResponse(Course course, Requester requester) {

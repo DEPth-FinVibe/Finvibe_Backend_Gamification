@@ -1,5 +1,6 @@
 package depth.finvibe.gamification.modules.study.application.port.out;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,4 +11,5 @@ public interface LessonCompleteRepository {
     boolean existsByLessonUserIdKey(String lessonUserIdKey);
     long countByLessonCourseIdAndUserId(Long courseId, UUID userId);
     List<Long> findLessonIdsByUserIdAndCourseId(UUID userId, Long courseId);
+    List<LessonComplete> findByUserIdAndCreatedAtBetween(UUID userId, LocalDateTime start, LocalDateTime end);
 }

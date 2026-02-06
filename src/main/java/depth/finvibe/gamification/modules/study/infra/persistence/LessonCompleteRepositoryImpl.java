@@ -1,5 +1,6 @@
 package depth.finvibe.gamification.modules.study.infra.persistence;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,5 +35,10 @@ public class LessonCompleteRepositoryImpl implements LessonCompleteRepository {
         return lessonCompleteJpaRepository.findByUserIdAndLessonCourseId(userId, courseId).stream()
                 .map(lessonComplete -> lessonComplete.getLesson().getId())
                 .toList();
+    }
+
+    @Override
+    public List<LessonComplete> findByUserIdAndCreatedAtBetween(UUID userId, LocalDateTime start, LocalDateTime end) {
+        return lessonCompleteJpaRepository.findByUserIdAndCreatedAtBetweenOrderByCreatedAtAsc(userId, start, end);
     }
 }

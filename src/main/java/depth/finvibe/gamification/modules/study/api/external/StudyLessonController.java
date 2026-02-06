@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import depth.finvibe.gamification.boot.security.model.AuthenticatedUser;
 import depth.finvibe.gamification.boot.security.model.Requester;
 import depth.finvibe.gamification.modules.study.application.port.in.CourseQueryUseCase;
 import depth.finvibe.gamification.modules.study.application.port.in.LessonQueryUseCase;
+import depth.finvibe.gamification.modules.study.dto.LessonCompletionDto;
 import depth.finvibe.gamification.modules.study.dto.LessonDto;
 
 @Tag(name = "학습 레슨", description = "레슨 조회 및 완료 API")
@@ -41,5 +43,14 @@ public class StudyLessonController {
             @AuthenticatedUser Requester requester
     ) {
         courseQueryUseCase.completeLesson(lessonId, requester);
+    }
+
+    @Operation(summary = "월별 레슨 수료 이력 조회", description = "인증된 사용자의 월별 레슨 수료 목록을 조회합니다")
+    @GetMapping("/completions/me")
+    public LessonCompletionDto.MonthlyLessonCompletionResponse getMonthlyLessonCompletions(
+            @RequestParam String month,
+            @AuthenticatedUser Requester requester
+    ) {
+        return lessonQueryUseCase.getMonthlyLessonCompletions(requester, month);
     }
 }
