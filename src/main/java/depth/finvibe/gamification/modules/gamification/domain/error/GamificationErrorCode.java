@@ -36,7 +36,11 @@ public enum GamificationErrorCode implements DomainErrorCode {
     BADGE_ALREADY_EXIST("GAMIFICATION_BADGE_ALREADY_EXIST", "이미 보유한 뱃지입니다."),
 
     // ===== 스쿼드(Squad) 관련 에러 =====
-    USER_SQUAD_NOT_FOUND("GAMIFICATION_USER_SQUAD_NOT_FOUND", "사용자가 속한 스쿼드를 찾을 수 없습니다.");
+    SQUAD_NOT_FOUND("GAMIFICATION_SQUAD_NOT_FOUND", "존재하지 않는 스쿼드입니다."),
+    SQUAD_NAME_IS_EMPTY("GAMIFICATION_SQUAD_NAME_IS_EMPTY", "스쿼드 이름은 비어 있을 수 없습니다."),
+    SQUAD_REGION_IS_EMPTY("GAMIFICATION_SQUAD_REGION_IS_EMPTY", "스쿼드 지역은 비어 있을 수 없습니다."),
+    USER_SQUAD_NOT_FOUND("GAMIFICATION_USER_SQUAD_NOT_FOUND", "사용자가 속한 스쿼드를 찾을 수 없습니다."),
+    FORBIDDEN_ACCESS("GAMIFICATION_FORBIDDEN_ACCESS", "관리자만 접근 가능합니다.");
 
     private final String code;
     private final String message;

@@ -10,7 +10,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import depth.finvibe.gamification.modules.gamification.domain.error.GamificationErrorCode;
 import depth.finvibe.gamification.shared.domain.TimeStampedBaseEntity;
+import depth.finvibe.gamification.shared.error.DomainException;
 
 @Entity
 @AllArgsConstructor
@@ -27,7 +29,22 @@ public class Squad extends TimeStampedBaseEntity {
     private String region; // 예: 서울, 경기 등
 
     public void updateInfo(String name, String region) {
+        validateName(name);
+        validateRegion(region);
+
         this.name = name;
         this.region = region;
+    }
+
+    private void validateName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new DomainException(GamificationErrorCode.SQUAD_NAME_IS_EMPTY);
+        }
+    }
+
+    private void validateRegion(String region) {
+        if (region == null || region.isBlank()) {
+            throw new DomainException(GamificationErrorCode.SQUAD_REGION_IS_EMPTY);
+        }
     }
 }

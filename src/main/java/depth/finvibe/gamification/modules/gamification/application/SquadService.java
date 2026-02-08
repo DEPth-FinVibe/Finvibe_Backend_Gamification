@@ -8,7 +8,9 @@ import depth.finvibe.gamification.modules.gamification.application.port.out.Squa
 import depth.finvibe.gamification.modules.gamification.application.port.out.UserSquadRepository;
 import depth.finvibe.gamification.modules.gamification.domain.Squad;
 import depth.finvibe.gamification.modules.gamification.domain.UserSquad;
+import depth.finvibe.gamification.modules.gamification.domain.error.GamificationErrorCode;
 import depth.finvibe.gamification.modules.gamification.dto.SquadDto;
+import depth.finvibe.gamification.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +30,7 @@ public class SquadService implements SquadCommandUseCase, SquadQueryUseCase {
     @Transactional
     public void joinSquad(Long squadId, Requester requester) {
         Squad squad = squadRepository.findById(squadId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스쿼드입니다."));
+                .orElseThrow(() -> new DomainException(GamificationErrorCode.SQUAD_NOT_FOUND));
 
         UserSquad userSquad = userSquadRepository.findByUserId(requester.getUuid())
                 .orElseGet(() -> UserSquad.builder().userId(requester.getUuid()).build());
@@ -41,6 +43,8 @@ public class SquadService implements SquadCommandUseCase, SquadQueryUseCase {
     @Transactional
     public Long createSquad(String name, String region, Requester requester) {
         validateAdmin(requester);
+        validateSquadName(name);
+        validateSquadRegion(region);
 
         Squad squad = Squad.builder()
                 .name(name)
@@ -57,7 +61,7 @@ public class SquadService implements SquadCommandUseCase, SquadQueryUseCase {
         validateAdmin(requester);
 
         Squad squad = squadRepository.findById(squadId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스쿼드입니다."));
+                .orElseThrow(() -> new DomainException(GamificationErrorCode.SQUAD_NOT_FOUND));
 
         squad.updateInfo(name, region);
         squadRepository.save(squad);
@@ -69,14 +73,26 @@ public class SquadService implements SquadCommandUseCase, SquadQueryUseCase {
         validateAdmin(requester);
 
         Squad squad = squadRepository.findById(squadId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스쿼드입니다."));
+                .orElseThrow(() -> new DomainException(GamificationErrorCode.SQUAD_NOT_FOUND));
 
         squadRepository.delete(squad);
     }
 
     private void validateAdmin(Requester requester) {
         if (!requester.getRole().equals(UserRole.ADMIN)) {
-            throw new IllegalArgumentException("관리자만 접근 가능합니다.");
+            throw new DomainException(GamificationErrorCode.FORBIDDEN_ACCESS);
+        }
+    }
+
+    private void validateSquadName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new DomainException(GamificationErrorCode.SQUAD_NAME_IS_EMPTY);
+        }
+    }
+
+    private void validateSquadRegion(String region) {
+        if (region == null || region.isBlank()) {
+            throw new DomainException(GamificationErrorCode.SQUAD_REGION_IS_EMPTY);
         }
     }
 
@@ -84,7 +100,7 @@ public class SquadService implements SquadCommandUseCase, SquadQueryUseCase {
     @Transactional(readOnly = true)
     public SquadDto.Response getUserSquad(UUID userId) {
         UserSquad userSquad = userSquadRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("소속된 스쿼드가 없습니다."));
+                .orElseThrow(() -> new DomainException(GamificationErrorCode.USER_SQUAD_NOT_FOUND));
 
         Squad squad = userSquad.getSquad();
         return SquadDto.Response.builder()

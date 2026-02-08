@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(./gradlew clean build:*)",
-      "Bash(./gradlew test:*)"
+      "Bash(./gradlew test:*)",
+      "Bash(chmod:*)"
     ]
   }
 }

@@ -19,6 +19,7 @@ import depth.finvibe.gamification.modules.gamification.application.port.out.User
 import depth.finvibe.gamification.modules.gamification.domain.Squad;
 import depth.finvibe.gamification.modules.gamification.domain.UserSquad;
 import depth.finvibe.gamification.modules.gamification.dto.SquadDto;
+import depth.finvibe.gamification.shared.error.DomainException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -61,7 +62,7 @@ class SquadServiceTest {
         when(squadRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> squadService.joinSquad(1L, requester(userId, UserRole.USER)))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(DomainException.class);
     }
 
     @Test
@@ -82,7 +83,7 @@ class SquadServiceTest {
     @DisplayName("관리자가 아니면 스쿼드 생성이 불가하다")
     void create_squad_throws_when_not_admin() {
         assertThatThrownBy(() -> squadService.createSquad("스쿼드", "서울", requester(UUID.randomUUID(), UserRole.USER)))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(DomainException.class);
         verify(squadRepository, never()).save(any());
     }
 
@@ -103,7 +104,7 @@ class SquadServiceTest {
     @DisplayName("관리자가 아니면 스쿼드 수정이 불가하다")
     void update_squad_throws_when_not_admin() {
         assertThatThrownBy(() -> squadService.updateSquad(1L, "변경", "서울", requester(UUID.randomUUID(), UserRole.USER)))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(DomainException.class);
     }
 
     @Test
@@ -121,7 +122,7 @@ class SquadServiceTest {
     @DisplayName("관리자가 아니면 스쿼드 삭제가 불가하다")
     void delete_squad_throws_when_not_admin() {
         assertThatThrownBy(() -> squadService.deleteSquad(1L, requester(UUID.randomUUID(), UserRole.USER)))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(DomainException.class);
     }
 
     @Test
