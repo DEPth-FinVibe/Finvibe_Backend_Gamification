@@ -39,3 +39,4 @@ out/
 
 .env
 .cursor/rules/reply-rule.mdc
+/.claude/
