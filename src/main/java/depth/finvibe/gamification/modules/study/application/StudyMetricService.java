@@ -10,20 +10,31 @@ import org.springframework.transaction.annotation.Transactional;
 
 import depth.finvibe.gamification.boot.security.model.Requester;
 import depth.finvibe.gamification.modules.study.application.port.in.MetricCommandUseCase;
+import depth.finvibe.gamification.modules.study.application.port.in.MetricQueryUseCase;
 import depth.finvibe.gamification.modules.study.application.port.out.LessonRepository;
 import depth.finvibe.gamification.modules.study.application.port.out.StudyMetricRepository;
 import depth.finvibe.gamification.modules.study.domain.StudyMetric;
 import depth.finvibe.gamification.modules.study.domain.error.StudyErrorCode;
+import depth.finvibe.gamification.modules.study.dto.StudyMetricDto;
 import depth.finvibe.gamification.shared.error.DomainException;
 import depth.finvibe.gamification.shared.error.GlobalErrorCode;
 
 @Service
 @RequiredArgsConstructor
-public class StudyMetricService implements MetricCommandUseCase {
+public class StudyMetricService implements MetricCommandUseCase, MetricQueryUseCase {
     private static final Duration TEN_MINUTES = Duration.ofMinutes(10);
 
     private final LessonRepository lessonRepository;
     private final StudyMetricRepository studyMetricRepository;
+
+    @Override
+    @Transactional(readOnly = true)
+    public StudyMetricDto.MyMetricResponse getMyMetric(Requester requester) {
+        UUID userId = requester.getUuid();
+        return studyMetricRepository.findByUserId(userId)
+                .map(StudyMetricDto.MyMetricResponse::from)
+                .orElseGet(StudyMetricDto.MyMetricResponse::empty);
+    }
 
     @Override
     @Transactional
