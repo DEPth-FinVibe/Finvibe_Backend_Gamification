@@ -40,18 +40,18 @@ public class SquadStartupInitializer implements ApplicationRunner {
             distributedLockManager.executeWithLock(LOCK_KEY, () -> {
                 // Idempotency 체크
                 if (!squadRepository.findAll().isEmpty()) {
-                    log.info("Squads already exist. skip initialization");
+                    log.info("스쿼드 데이터가 이미 존재하여 초기화를 건너뜁니다.");
                     return null;
                 }
 
-                log.info("Starting squad initialization");
+                log.info("스쿼드 초기화를 시작합니다.");
 
                 // JSON 로드
                 SeedSquads seedSquads = loadSeedSquads();
 
                 // 데이터 검증
                 if (seedSquads == null || seedSquads.squads == null || seedSquads.squads.isEmpty()) {
-                    log.warn("Squad seed data is empty. skip initialization");
+                    log.warn("스쿼드 시드 데이터가 비어 있어 초기화를 건너뜁니다.");
                     return null;
                 }
 
@@ -63,11 +63,11 @@ public class SquadStartupInitializer implements ApplicationRunner {
                     }
                 }
 
-                log.info("Squad initialization completed. total={}", seedSquads.squads.size());
+                log.info("스쿼드 초기화가 완료되었습니다. 총 {}건 처리되었습니다.", seedSquads.squads.size());
                 return null;
             });
         } catch (LockAcquisitionException ex) {
-            log.warn("Skip squad initialization due to lock acquisition failure", ex);
+            log.warn("락 획득에 실패하여 스쿼드 초기화를 건너뜁니다.", ex);
         }
     }
 
