@@ -33,7 +33,10 @@ public enum GamificationErrorCode implements DomainErrorCode {
     INVALID_REWARD("GAMIFICATION_INVALID_REWARD", "reward는 비어 있을 수 없습니다."),
 
     // ===== 뱃지(Badge) 관련 에러 =====
-    BADGE_ALREADY_EXIST("GAMIFICATION_BADGE_ALREADY_EXIST", "이미 보유한 뱃지입니다.");
+    BADGE_ALREADY_EXIST("GAMIFICATION_BADGE_ALREADY_EXIST", "이미 보유한 뱃지입니다."),
+
+    // ===== 스쿼드(Squad) 관련 에러 =====
+    USER_SQUAD_NOT_FOUND("GAMIFICATION_USER_SQUAD_NOT_FOUND", "사용자가 속한 스쿼드를 찾을 수 없습니다.");
 
     private final String code;
     private final String message;

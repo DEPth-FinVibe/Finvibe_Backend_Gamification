@@ -16,8 +16,10 @@ import depth.finvibe.gamification.modules.gamification.domain.UserXp;
 import depth.finvibe.gamification.modules.gamification.domain.UserXpAward;
 import depth.finvibe.gamification.modules.gamification.domain.UserXpRankingSnapshot;
 import depth.finvibe.gamification.modules.gamification.domain.enums.RankingPeriod;
+import depth.finvibe.gamification.modules.gamification.domain.error.GamificationErrorCode;
 import depth.finvibe.gamification.modules.gamification.domain.vo.Xp;
 import depth.finvibe.gamification.modules.gamification.dto.XpDto;
+import depth.finvibe.gamification.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -95,7 +97,7 @@ public class XpService implements XpCommandUseCase, XpQueryUseCase {
     @Transactional(readOnly = true)
     public List<XpDto.ContributionRankingResponse> getSquadContributionRanking(UUID userId) {
         UserSquad userSquad = userSquadRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("사용자가 속한 스쿼드가 없습니다."));
+                .orElseThrow(() -> new DomainException(GamificationErrorCode.USER_SQUAD_NOT_FOUND));
 
         Long squadId = userSquad.getSquad().getId();
         List<UserSquad> squadMembers = userSquadRepository.findAllBySquadId(squadId);
