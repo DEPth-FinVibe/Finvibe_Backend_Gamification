@@ -64,12 +64,14 @@ public class GlobalCourseStartupInitializer implements ApplicationRunner {
     }
 
     private void saveGlobalCourse(SeedCourse seedCourse) {
+        int totalLessonCount = seedCourse.lessons == null ? 0 : seedCourse.lessons.size();
         Course course = Course.builder()
                 .title(seedCourse.title)
                 .description(seedCourse.description)
                 .difficulty(seedCourse.difficulty)
                 .owner(null)
                 .isGlobal(true)
+                .totalLessonCount(totalLessonCount)
                 .build();
 
         Course savedCourse = courseRepository.save(course);
