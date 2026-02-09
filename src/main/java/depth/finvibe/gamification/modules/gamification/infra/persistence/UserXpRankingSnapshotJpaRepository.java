@@ -2,6 +2,8 @@ package depth.finvibe.gamification.modules.gamification.infra.persistence;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +18,9 @@ public interface UserXpRankingSnapshotJpaRepository extends JpaRepository<UserXp
             RankingPeriod periodType,
             LocalDate periodStartDate,
             Pageable pageable);
+
+    Optional<UserXpRankingSnapshot> findByPeriodTypeAndPeriodStartDateAndUserId(
+            RankingPeriod periodType,
+            LocalDate periodStartDate,
+            UUID userId);
 }
