@@ -22,7 +22,7 @@ import depth.finvibe.gamification.shared.error.GlobalErrorCode;
 @Service
 @RequiredArgsConstructor
 public class StudyMetricService implements MetricCommandUseCase, MetricQueryUseCase {
-    private static final Duration TEN_MINUTES = Duration.ofMinutes(10);
+    private static final Duration ONE_MINUTE = Duration.ofMinutes(1);
 
     private final LessonRepository lessonRepository;
     private final StudyMetricRepository studyMetricRepository;
@@ -38,7 +38,7 @@ public class StudyMetricService implements MetricCommandUseCase, MetricQueryUseC
 
     @Override
     @Transactional
-    public void tenMinutePing(Requester requester, Long lessonId) {
+    public void oneMinutePing(Requester requester, Long lessonId) {
         lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new DomainException(GlobalErrorCode.NOT_FOUND));
 
@@ -48,11 +48,11 @@ public class StudyMetricService implements MetricCommandUseCase, MetricQueryUseC
 
         Instant now = Instant.now();
         Instant lastPingAt = studyMetric.getLastPingAt();
-        if (lastPingAt != null && lastPingAt.isAfter(now.minus(TEN_MINUTES))) {
+        if (lastPingAt != null && lastPingAt.isAfter(now.minus(ONE_MINUTE))) {
             throw new DomainException(StudyErrorCode.PING_TOO_FREQUENT);
         }
 
-        studyMetric.addTimeSpentMinutes(10L);
+        studyMetric.addTimeSpentMinutes(1L);
         studyMetric.updateLastPingAt(now);
         studyMetricRepository.save(studyMetric);
     }

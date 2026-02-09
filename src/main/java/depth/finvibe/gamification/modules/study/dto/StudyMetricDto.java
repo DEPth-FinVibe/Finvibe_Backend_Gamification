@@ -24,7 +24,7 @@ public class StudyMetricDto {
         @Schema(description = "누적 학습 시간(분)", example = "90")
         private Long timeSpentMinutes;
 
-        @Schema(description = "마지막 10분 핑 시각(UTC)", example = "2026-02-09T09:10:11Z")
+        @Schema(description = "마지막 1분 핑 시각(UTC)", example = "2026-02-09T09:10:11Z")
         private Instant lastPingAt;
 
         public static MyMetricResponse from(StudyMetric studyMetric) {

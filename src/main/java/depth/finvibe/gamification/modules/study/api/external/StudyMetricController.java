@@ -21,12 +21,12 @@ public class StudyMetricController {
 
     private final MetricCommandUseCase metricCommandUseCase;
 
-    @Operation(summary = "10분 학습 핑", description = "10분 단위 학습 시간을 기록합니다")
-    @PostMapping("/ten-minute")
-    public void tenMinutePing(
+    @Operation(summary = "1분 학습 핑", description = "1분 단위 학습 시간을 기록합니다")
+    @PostMapping("/one-minute")
+    public void oneMinutePing(
             @PathVariable Long lessonId,
             @AuthenticatedUser Requester requester
     ) {
-        metricCommandUseCase.tenMinutePing(requester, lessonId);
+        metricCommandUseCase.oneMinutePing(requester, lessonId);
     }
 }

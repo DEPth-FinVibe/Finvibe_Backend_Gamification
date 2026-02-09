@@ -8,7 +8,7 @@ import depth.finvibe.gamification.shared.error.DomainErrorCode;
 @AllArgsConstructor
 @Getter
 public enum StudyErrorCode implements DomainErrorCode {
-    PING_TOO_FREQUENT("STUDY_PING_TOO_FREQUENT", "10분 이내에는 다시 요청할 수 없습니다.");
+    PING_TOO_FREQUENT("STUDY_PING_TOO_FREQUENT", "1분 이내에는 다시 요청할 수 없습니다.");
 
     private final String code;
     private final String message;
