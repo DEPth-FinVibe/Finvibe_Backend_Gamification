@@ -19,7 +19,7 @@ public class StudyTradeServiceClientImpl implements TradeServiceClient {
     private static final TypeReference<List<TradeDto.TradeHistoryResponse>> RESPONSE_TYPE = new TypeReference<>() {};
 
     private final RestClient restClient = RestClient.builder()
-            .baseUrl("http://trade")
+            .baseUrl("http://investment")
             .build();
     private final ObjectMapper objectMapper;
 
