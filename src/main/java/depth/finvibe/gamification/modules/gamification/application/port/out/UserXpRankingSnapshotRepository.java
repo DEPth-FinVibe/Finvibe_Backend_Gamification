@@ -2,6 +2,8 @@ package depth.finvibe.gamification.modules.gamification.application.port.out;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import depth.finvibe.gamification.modules.gamification.domain.UserXpRankingSnapshot;
 import depth.finvibe.gamification.modules.gamification.domain.enums.RankingPeriod;
@@ -16,4 +18,9 @@ public interface UserXpRankingSnapshotRepository {
             RankingPeriod periodType,
             LocalDate periodStartDate,
             int size);
+
+    Optional<UserXpRankingSnapshot> findByPeriodAndUserId(
+            RankingPeriod periodType,
+            LocalDate periodStartDate,
+            UUID userId);
 }

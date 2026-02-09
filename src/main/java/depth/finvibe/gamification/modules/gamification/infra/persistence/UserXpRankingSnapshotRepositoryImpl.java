@@ -2,6 +2,8 @@ package depth.finvibe.gamification.modules.gamification.infra.persistence;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,5 +41,17 @@ public class UserXpRankingSnapshotRepositoryImpl implements UserXpRankingSnapsho
                 periodType,
                 periodStartDate,
                 PageRequest.of(0, pageSize));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<UserXpRankingSnapshot> findByPeriodAndUserId(
+            RankingPeriod periodType,
+            LocalDate periodStartDate,
+            UUID userId) {
+        return userXpRankingSnapshotJpaRepository.findByPeriodTypeAndPeriodStartDateAndUserId(
+                periodType,
+                periodStartDate,
+                userId);
     }
 }
