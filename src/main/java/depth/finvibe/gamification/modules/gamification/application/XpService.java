@@ -127,24 +127,40 @@ public class XpService implements XpCommandUseCase, XpQueryUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public List<XpDto.UserRankingResponse> getUserXpRanking(RankingPeriod rankingPeriod, int size) {
-        LocalDate currentPeriodStartDate = getCurrentStart(rankingPeriod, LocalDateTime.now(ZoneId.of("Asia/Seoul")))
-                .toLocalDate();
-        List<UserXpRankingSnapshot> snapshots = userXpRankingSnapshotRepository.findTopByPeriod(
-                rankingPeriod,
-                currentPeriodStartDate,
-                size);
+    public List<XpDto.UserRankingResponse> getUserXpRanking() {
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+        LocalDateTime currentMonthStart = now.toLocalDate().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime nextMonthStart = currentMonthStart.plusMonths(1);
 
-        List<XpDto.UserRankingResponse> result = new ArrayList<>(snapshots.size());
-        for (UserXpRankingSnapshot snapshot : snapshots) {
+        List<UserXpAwardRepository.UserPeriodXp> rankedUsers = userXpAwardRepository
+                .findUserPeriodXpRankingBetween(currentMonthStart, nextMonthStart, 100);
+
+        if (rankedUsers.isEmpty()) {
+            return List.of();
+        }
+
+        List<UUID> userIds = rankedUsers.stream()
+                .map(UserXpAwardRepository.UserPeriodXp::userId)
+                .toList();
+
+        Map<UUID, UserXp> userXpMap = new HashMap<>();
+        for (UserXp userXp : userXpRepository.findAllByUserIdIn(userIds)) {
+            userXpMap.put(userXp.getUserId(), userXp);
+        }
+
+        List<XpDto.UserRankingResponse> result = new ArrayList<>(rankedUsers.size());
+        for (int i = 0; i < rankedUsers.size(); i++) {
+            UserXpAwardRepository.UserPeriodXp rankedUser = rankedUsers.get(i);
+            UserXp userXp = userXpMap.get(rankedUser.userId());
+
             result.add(XpDto.UserRankingResponse.builder()
-                    .userId(snapshot.getUserId())
-                    .nickname(snapshot.getNickname())
-                    .ranking(snapshot.getRanking())
-                    .currentXp(snapshot.getCurrentTotalXp())
-                    .periodXp(snapshot.getPeriodXp())
-                    .previousPeriodXp(snapshot.getPreviousPeriodXp())
-                    .growthRate(snapshot.getGrowthRate())
+                    .userId(rankedUser.userId())
+                    .nickname(userXp != null ? userXp.getNickname() : "이름 없음")
+                    .ranking(i + 1)
+                    .currentXp(userXp != null ? userXp.getTotalXp() : rankedUser.xp())
+                    .periodXp(rankedUser.xp())
+                    .previousPeriodXp(0L)
+                    .growthRate(null)
                     .build());
         }
         return result;

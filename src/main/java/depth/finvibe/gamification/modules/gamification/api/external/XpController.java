@@ -5,17 +5,14 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import depth.finvibe.gamification.boot.security.model.AuthenticatedUser;
 import depth.finvibe.gamification.boot.security.model.Requester;
 import depth.finvibe.gamification.modules.gamification.application.port.in.XpQueryUseCase;
-import depth.finvibe.gamification.modules.gamification.domain.enums.RankingPeriod;
 import depth.finvibe.gamification.modules.gamification.dto.XpDto;
 
 @Tag(name = "경험치", description = "경험치 및 랭킹 조회 API")
@@ -45,13 +42,9 @@ public class XpController {
         return xpQueryUseCase.getSquadContributionRanking(requester.getUuid());
     }
 
-    @Operation(summary = "전체 사용자 XP 랭킹 조회", description = "주간/월간 기준 전체 사용자 XP 랭킹을 조회합니다")
+    @Operation(summary = "전체 사용자 XP 랭킹 조회", description = "이번달 획득 XP 합산 기준 전체 사용자 Top 100 랭킹을 조회합니다")
     @GetMapping("/users/ranking")
-    public List<XpDto.UserRankingResponse> getUserXpRanking(
-            @Parameter(description = "집계 기간(WEEKLY, MONTHLY)", example = "WEEKLY")
-            @RequestParam(defaultValue = "WEEKLY") RankingPeriod period,
-            @Parameter(description = "조회 개수", example = "100")
-            @RequestParam(defaultValue = "100") int size) {
-        return xpQueryUseCase.getUserXpRanking(period, size);
+    public List<XpDto.UserRankingResponse> getUserXpRanking() {
+        return xpQueryUseCase.getUserXpRanking();
     }
 }

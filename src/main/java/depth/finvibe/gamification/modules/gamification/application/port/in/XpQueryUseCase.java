@@ -1,7 +1,6 @@
 package depth.finvibe.gamification.modules.gamification.application.port.in;
 
 import depth.finvibe.gamification.modules.gamification.dto.XpDto;
-import depth.finvibe.gamification.modules.gamification.domain.enums.RankingPeriod;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,10 +33,9 @@ public interface XpQueryUseCase {
 
     /**
      * 전체 사용자 XP 랭킹을 조회합니다.
+     * 이번달 획득 XP 합산 기준 Top 100을 반환합니다.
      *
-     * @param rankingPeriod 집계 기간 (주간/월간)
-     * @param size 조회 개수
      * @return 사용자 XP 랭킹 목록
      */
-    List<XpDto.UserRankingResponse> getUserXpRanking(RankingPeriod rankingPeriod, int size);
+    List<XpDto.UserRankingResponse> getUserXpRanking();
 }

@@ -26,8 +26,6 @@ import depth.finvibe.gamification.modules.gamification.domain.SquadXp;
 import depth.finvibe.gamification.modules.gamification.domain.UserSquad;
 import depth.finvibe.gamification.modules.gamification.domain.UserXp;
 import depth.finvibe.gamification.modules.gamification.domain.UserXpAward;
-import depth.finvibe.gamification.modules.gamification.domain.UserXpRankingSnapshot;
-import depth.finvibe.gamification.modules.gamification.domain.enums.RankingPeriod;
 import depth.finvibe.gamification.modules.gamification.dto.XpDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -201,77 +199,42 @@ class XpServiceTest {
     }
 
     @Test
-    @DisplayName("전체 유저 주간 XP 랭킹 조회 시 현재 XP와 상승률을 반환한다")
-    void get_user_xp_ranking_weekly_returns_growth_rate() {
+    @DisplayName("전체 유저 랭킹 조회 시 이번달 획득 XP 합산 기준 Top 100을 반환한다")
+    void get_user_xp_ranking_returns_monthly_top_100() {
         UUID userA = UUID.randomUUID();
         UUID userB = UUID.randomUUID();
 
-        UserXpRankingSnapshot snapshotA = UserXpRankingSnapshot.of(
-                RankingPeriod.WEEKLY,
-                java.time.LocalDate.now(),
-                java.time.LocalDate.now().plusDays(6),
-                userA,
-                "유저A",
-                1,
-                5000L,
-                300L,
-                150L,
-                100.0,
-                java.time.LocalDateTime.now());
-        UserXpRankingSnapshot snapshotB = UserXpRankingSnapshot.of(
-                RankingPeriod.WEEKLY,
-                java.time.LocalDate.now(),
-                java.time.LocalDate.now().plusDays(6),
-                userB,
-                "유저B",
-                2,
-                2200L,
-                120L,
-                100L,
-                20.0,
-                java.time.LocalDateTime.now());
+        when(userXpAwardRepository.findUserPeriodXpRankingBetween(any(), any(), eq(100)))
+                .thenReturn(List.of(
+                        new UserXpAwardRepository.UserPeriodXp(userA, 800L),
+                        new UserXpAwardRepository.UserPeriodXp(userB, 500L)
+                ));
+        when(userXpRepository.findAllByUserIdIn(List.of(userA, userB)))
+                .thenReturn(List.of(
+                        UserXp.builder().userId(userA).nickname("유저A").totalXp(5000L).build(),
+                        UserXp.builder().userId(userB).nickname("유저B").totalXp(2200L).build()
+                ));
 
-        when(userXpRankingSnapshotRepository.findTopByPeriod(eq(RankingPeriod.WEEKLY), any(), eq(2)))
-                .thenReturn(List.of(snapshotA, snapshotB));
-
-        List<XpDto.UserRankingResponse> result = xpService.getUserXpRanking(RankingPeriod.WEEKLY, 2);
+        List<XpDto.UserRankingResponse> result = xpService.getUserXpRanking();
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getUserId()).isEqualTo(userA);
         assertThat(result.get(0).getRanking()).isEqualTo(1);
         assertThat(result.get(0).getCurrentXp()).isEqualTo(5000L);
-        assertThat(result.get(0).getPeriodXp()).isEqualTo(300L);
-        assertThat(result.get(0).getPreviousPeriodXp()).isEqualTo(150L);
-        assertThat(result.get(0).getGrowthRate()).isEqualTo(100.0);
-    }
-
-    @Test
-    @DisplayName("전체 유저 월간 XP 랭킹 조회 시 이전 기간 XP가 0이면 상승률은 null이다")
-    void get_user_xp_ranking_monthly_returns_null_growth_when_previous_is_zero() {
-        UUID userA = UUID.randomUUID();
-
-        UserXpRankingSnapshot snapshot = UserXpRankingSnapshot.of(
-                RankingPeriod.MONTHLY,
-                java.time.LocalDate.now().withDayOfMonth(1),
-                java.time.LocalDate.now().withDayOfMonth(1).plusMonths(1).minusDays(1),
-                userA,
-                "유저A",
-                1,
-                8000L,
-                800L,
-                0L,
-                null,
-                java.time.LocalDateTime.now());
-
-        when(userXpRankingSnapshotRepository.findTopByPeriod(eq(RankingPeriod.MONTHLY), any(), eq(10)))
-                .thenReturn(List.of(snapshot));
-
-        List<XpDto.UserRankingResponse> result = xpService.getUserXpRanking(RankingPeriod.MONTHLY, 10);
-
-        assertThat(result).hasSize(1);
         assertThat(result.get(0).getPeriodXp()).isEqualTo(800L);
         assertThat(result.get(0).getPreviousPeriodXp()).isEqualTo(0L);
         assertThat(result.get(0).getGrowthRate()).isNull();
+    }
+
+    @Test
+    @DisplayName("전체 유저 랭킹 조회 시 이번달 집계 데이터가 없으면 빈 목록을 반환한다")
+    void get_user_xp_ranking_returns_empty_when_no_monthly_data() {
+        when(userXpAwardRepository.findUserPeriodXpRankingBetween(any(), any(), eq(100)))
+                .thenReturn(List.of());
+
+        List<XpDto.UserRankingResponse> result = xpService.getUserXpRanking();
+
+        assertThat(result).isEmpty();
     }
 
     @Test
