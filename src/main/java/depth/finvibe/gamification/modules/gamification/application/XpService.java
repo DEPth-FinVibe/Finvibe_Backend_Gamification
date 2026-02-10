@@ -108,11 +108,13 @@ public class XpService implements XpCommandUseCase, XpQueryUseCase {
         }
 
         List<UserXp> memberXps = userXpRepository.findAllByUserIdInOrderByWeeklyXpDesc(memberIds);
+        Map<UUID, String> nicknames = userServiceClient.getNicknamesByIds(memberIds);
 
         List<XpDto.ContributionRankingResponse> result = new ArrayList<>(memberXps.size());
         for (int i = 0; i < memberXps.size(); i++) {
             UserXp userXp = memberXps.get(i);
-            result.add(toContributionRankingResponse(userXp, i + 1));
+            String nickname = nicknames.getOrDefault(userXp.getUserId(), "이름 없음");
+            result.add(toContributionRankingResponse(userXp, i + 1, nickname));
         }
         return result;
     }
@@ -240,10 +242,9 @@ public class XpService implements XpCommandUseCase, XpQueryUseCase {
                 .build();
     }
 
-    private XpDto.ContributionRankingResponse toContributionRankingResponse(UserXp userXp, int ranking) {
-        // TODO: 유저 닉네임 모듈 연동 필요 (현재는 userId를 사용)
+    private XpDto.ContributionRankingResponse toContributionRankingResponse(UserXp userXp, int ranking, String nickname) {
         return XpDto.ContributionRankingResponse.builder()
-                .nickname(userXp.getUserId().toString())
+                .nickname(nickname)
                 .ranking(ranking)
                 .weeklyContributionXp(userXp.getWeeklyXp())
                 .build();

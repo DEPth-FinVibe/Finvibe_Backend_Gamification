@@ -142,12 +142,16 @@ class XpServiceTest {
                         UserXp.builder().userId(member2).weeklyXp(200L).build(),
                         UserXp.builder().userId(member1).weeklyXp(100L).build()
                 ));
+        when(userServiceClient.getNicknamesByIds(List.of(member1, member2)))
+                .thenReturn(Map.of(member1, "멤버1", member2, "멤버2"));
 
         List<XpDto.ContributionRankingResponse> result = xpService.getSquadContributionRanking(userId);
 
         assertThat(result).hasSize(2);
+        assertThat(result.get(0).getNickname()).isEqualTo("멤버2");
         assertThat(result.get(0).getRanking()).isEqualTo(1);
         assertThat(result.get(0).getWeeklyContributionXp()).isEqualTo(200L);
+        assertThat(result.get(1).getNickname()).isEqualTo("멤버1");
         assertThat(result.get(1).getRanking()).isEqualTo(2);
     }
 
