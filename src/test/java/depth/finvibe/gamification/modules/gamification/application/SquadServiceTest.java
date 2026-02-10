@@ -14,6 +14,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import depth.finvibe.gamification.boot.security.model.Requester;
 import depth.finvibe.gamification.boot.security.model.UserRole;
+import depth.finvibe.gamification.modules.gamification.application.port.in.XpCommandUseCase;
 import depth.finvibe.gamification.modules.gamification.application.port.out.SquadRepository;
 import depth.finvibe.gamification.modules.gamification.application.port.out.UserSquadRepository;
 import depth.finvibe.gamification.modules.gamification.domain.Squad;
@@ -24,6 +25,7 @@ import depth.finvibe.gamification.shared.error.DomainException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -39,6 +41,9 @@ class SquadServiceTest {
     @Mock
     private UserSquadRepository userSquadRepository;
 
+    @Mock
+    private XpCommandUseCase xpCommandUseCase;
+
     @InjectMocks
     private SquadService squadService;
 
@@ -53,6 +58,24 @@ class SquadServiceTest {
         squadService.joinSquad(1L, requester(userId, UserRole.USER));
 
         verify(userSquadRepository).save(any(UserSquad.class));
+        verify(xpCommandUseCase).grantUserXp(eq(userId), eq(100L), eq("[스쿼드] 첫 가입 축하 보상"));
+    }
+
+    @Test
+    @DisplayName("이미 가입 이력이 있으면 스쿼드 변경 시 축하 XP를 지급하지 않는다")
+    void join_squad_does_not_grant_celebration_xp_when_already_joined() {
+        UUID userId = UUID.randomUUID();
+        Squad previousSquad = Squad.builder().id(2L).name("이전스쿼드").region("부산").build();
+        Squad newSquad = Squad.builder().id(1L).name("스쿼드").region("서울").build();
+        UserSquad existingUserSquad = UserSquad.builder().userId(userId).squad(previousSquad).build();
+
+        when(squadRepository.findById(1L)).thenReturn(Optional.of(newSquad));
+        when(userSquadRepository.findByUserId(userId)).thenReturn(Optional.of(existingUserSquad));
+
+        squadService.joinSquad(1L, requester(userId, UserRole.USER));
+
+        verify(userSquadRepository).save(existingUserSquad);
+        verify(xpCommandUseCase, never()).grantUserXp(any(), any(), any());
     }
 
     @Test

@@ -4,6 +4,7 @@ import depth.finvibe.gamification.boot.security.model.Requester;
 import depth.finvibe.gamification.boot.security.model.UserRole;
 import depth.finvibe.gamification.modules.gamification.application.port.in.SquadCommandUseCase;
 import depth.finvibe.gamification.modules.gamification.application.port.in.SquadQueryUseCase;
+import depth.finvibe.gamification.modules.gamification.application.port.in.XpCommandUseCase;
 import depth.finvibe.gamification.modules.gamification.application.port.out.SquadRepository;
 import depth.finvibe.gamification.modules.gamification.application.port.out.UserSquadRepository;
 import depth.finvibe.gamification.modules.gamification.domain.Squad;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -23,8 +25,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SquadService implements SquadCommandUseCase, SquadQueryUseCase {
 
+    private static final Long FIRST_SQUAD_JOIN_REWARD_XP = 100L;
+    private static final String FIRST_SQUAD_JOIN_REWARD_REASON = "[스쿼드] 첫 가입 축하 보상";
+
     private final SquadRepository squadRepository;
     private final UserSquadRepository userSquadRepository;
+    private final XpCommandUseCase xpCommandUseCase;
 
     @Override
     @Transactional
@@ -32,11 +38,21 @@ public class SquadService implements SquadCommandUseCase, SquadQueryUseCase {
         Squad squad = squadRepository.findById(squadId)
                 .orElseThrow(() -> new DomainException(GamificationErrorCode.SQUAD_NOT_FOUND));
 
-        UserSquad userSquad = userSquadRepository.findByUserId(requester.getUuid())
+        Optional<UserSquad> existingUserSquad = userSquadRepository.findByUserId(requester.getUuid());
+        boolean isFirstJoin = existingUserSquad.isEmpty();
+
+        UserSquad userSquad = existingUserSquad
                 .orElseGet(() -> UserSquad.builder().userId(requester.getUuid()).build());
 
         userSquad.changeSquad(squad);
         userSquadRepository.save(userSquad);
+
+        if (isFirstJoin) {
+            xpCommandUseCase.grantUserXp(
+                    requester.getUuid(),
+                    FIRST_SQUAD_JOIN_REWARD_XP,
+                    FIRST_SQUAD_JOIN_REWARD_REASON);
+        }
     }
 
     @Override
