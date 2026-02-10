@@ -100,6 +100,7 @@ class XpServiceTest {
         verify(squadXpRepository).save(squadXpCaptor.capture());
         assertThat(squadXpCaptor.getValue().getSquad().getId()).isEqualTo(1L);
         assertThat(squadXpCaptor.getValue().getTotalXp()).isEqualTo(1000L);
+        assertThat(squadXpCaptor.getValue().getWeeklyXpChangeRate()).isEqualTo(100.0);
     }
 
     @Test

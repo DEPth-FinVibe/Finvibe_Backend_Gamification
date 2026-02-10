@@ -45,9 +45,12 @@ public class SquadXp extends TimeStampedBaseEntity {
     }
 
     private void updateChangeRate() {
-        // 변동률 계산 로직 (필요 시 지난주 데이터와 비교)
-        if (totalXp > 0) {
-            this.weeklyXpChangeRate = (double) weeklyXp / (totalXp - weeklyXp) * 100;
+        long previousTotalXp = this.totalXp - this.weeklyXp;
+        if (previousTotalXp <= 0L) {
+            this.weeklyXpChangeRate = this.weeklyXp > 0L ? 100.0 : 0.0;
+            return;
         }
+
+        this.weeklyXpChangeRate = (double) this.weeklyXp / previousTotalXp * 100;
     }
 }
