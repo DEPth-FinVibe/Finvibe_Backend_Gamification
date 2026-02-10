@@ -88,10 +88,14 @@ public class ChallengeGeneratorImpl implements ChallengeGenerator {
         String metricTypes = Arrays.stream(UserMetricType.values())
                 .map(UserMetricType::name)
                 .collect(Collectors.joining(", "));
+        String metricTypeDetails = Arrays.stream(UserMetricType.values())
+                .map(metricType -> "- %s: %s".formatted(metricType.name(), metricType.getLlmDescription()))
+                .collect(Collectors.joining("\n"));
 
         String systemMessage = loadPrompt(SYSTEM_PROMPT_PATH);
         String userMessage = loadPrompt(USER_PROMPT_PATH)
-                .replace("{{metric_types}}", metricTypes);
+                .replace("{{metric_types}}", metricTypes)
+                .replace("{{metric_type_details}}", metricTypeDetails);
 
         ChatRequest request = ChatRequest.builder()
                 .messages(

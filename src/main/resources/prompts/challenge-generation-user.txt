@@ -4,8 +4,10 @@
 1) 배열 길이는 정확히 3
 2) 각 객체는 title, description, metricType, targetValue, rewardXp 필드만 포함
 3) metricType은 다음 값 중 하나만 사용: {{metric_types}}
-4) title은 10~18자 내외, description은 1~2문장(행동이 명확해야 함)
-5) targetValue는 0보다 큰 숫자, rewardXp는 0보다 큰 정수
+4) metricType 의미는 아래 정의를 따릅니다.
+{{metric_type_details}}
+5) title은 10~18자 내외, description은 1~2문장(행동이 명확해야 함)
+6) targetValue는 0보다 큰 숫자, rewardXp는 0보다 큰 정수
 
 품질 규칙
 1) 서로 다른 metricType을 우선적으로 사용해 다양하게 구성하세요.
