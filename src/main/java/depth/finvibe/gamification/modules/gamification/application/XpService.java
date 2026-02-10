@@ -176,9 +176,14 @@ public class XpService implements XpCommandUseCase, XpQueryUseCase {
 
     private void updateSquadXp(UUID userId, Long amount) {
         userSquadRepository.findByUserId(userId).ifPresent(userSquad -> {
-            SquadXp squadXp = squadXpRepository.findBySquadId(userSquad.getSquad().getId())
+            if (userSquad.getSquad() == null || userSquad.getSquad().getId() == null) {
+                log.warn("스쿼드 XP 갱신 생략 - 사용자 스쿼드 정보가 유효하지 않음: {}", userId);
+                return;
+            }
+
+            Long squadId = userSquad.getSquad().getId();
+            SquadXp squadXp = squadXpRepository.findBySquadId(squadId)
                     .orElseGet(() -> SquadXp.builder()
-                            .squadId(userSquad.getSquad().getId())
                             .squad(userSquad.getSquad())
                             .build());
             squadXp.addXp(amount);

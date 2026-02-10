@@ -98,7 +98,7 @@ class XpServiceTest {
 
         ArgumentCaptor<SquadXp> squadXpCaptor = ArgumentCaptor.forClass(SquadXp.class);
         verify(squadXpRepository).save(squadXpCaptor.capture());
-        assertThat(squadXpCaptor.getValue().getSquadId()).isEqualTo(1L);
+        assertThat(squadXpCaptor.getValue().getSquad().getId()).isEqualTo(1L);
         assertThat(squadXpCaptor.getValue().getTotalXp()).isEqualTo(1000L);
     }
 
