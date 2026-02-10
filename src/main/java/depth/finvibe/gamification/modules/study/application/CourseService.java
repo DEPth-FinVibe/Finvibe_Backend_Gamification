@@ -1,6 +1,7 @@
 package depth.finvibe.gamification.modules.study.application;
 
 import depth.finvibe.gamification.boot.security.model.Requester;
+import depth.finvibe.gamification.modules.gamification.domain.enums.MetricEventType;
 import depth.finvibe.gamification.modules.study.application.port.in.CourseCommandUseCase;
 import depth.finvibe.gamification.modules.study.application.port.in.CourseQueryUseCase;
 import depth.finvibe.gamification.modules.study.application.port.in.LessonQueryUseCase;
@@ -10,6 +11,7 @@ import depth.finvibe.gamification.modules.study.dto.CourseDto;
 import depth.finvibe.gamification.modules.study.dto.GeneratorDto;
 import depth.finvibe.gamification.modules.study.dto.LessonCompletionDto;
 import depth.finvibe.gamification.modules.study.dto.LessonDto;
+import depth.finvibe.gamification.shared.dto.UserMetricUpdatedEvent;
 import depth.finvibe.gamification.shared.dto.XpRewardEvent;
 import depth.finvibe.gamification.shared.error.DomainException;
 import depth.finvibe.gamification.shared.error.GlobalErrorCode;
@@ -17,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
@@ -41,6 +44,7 @@ public class CourseService implements CourseCommandUseCase, CourseQueryUseCase, 
     private final CourseProgressRepository courseProgressRepository;
     private final CourseRepository courseRepository;
     private final XpRewardEventPublisher xpRewardEventPublisher;
+    private final UserMetricUpdatedEventPublisher userMetricUpdatedEventPublisher;
 
     @Override
     @Transactional
@@ -190,6 +194,15 @@ public class CourseService implements CourseCommandUseCase, CourseQueryUseCase, 
                         lesson.getTitle() + " 수강 완료" ,
                         100L
                 )
+        );
+
+        userMetricUpdatedEventPublisher.publishUserMetricUpdatedEvent(
+                UserMetricUpdatedEvent.builder()
+                        .userId(requester.getUuid().toString())
+                        .eventType(MetricEventType.AI_CONTENT_COMPLETED)
+                        .delta(1.0)
+                        .occurredAt(Instant.now())
+                        .build()
         );
     }
 
