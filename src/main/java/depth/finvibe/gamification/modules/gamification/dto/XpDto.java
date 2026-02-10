@@ -2,13 +2,27 @@ package depth.finvibe.gamification.modules.gamification.dto;
 
 import java.util.UUID;
 
-import depth.finvibe.gamification.modules.gamification.domain.UserXp;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import depth.finvibe.gamification.modules.gamification.domain.UserXp;
+
 public class XpDto {
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "관리자 XP 지급 요청")
+    public static class GrantXpRequest {
+        @Schema(description = "지급할 XP", example = "100")
+        private Long value;
+        @Schema(description = "지급 사유", example = "이벤트 수동 보상")
+        private String reason;
+    }
 
     @Getter
     @Builder

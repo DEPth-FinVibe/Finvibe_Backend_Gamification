@@ -1,19 +1,27 @@
 package depth.finvibe.gamification.modules.gamification.api.external;
 
 import java.util.List;
+import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import depth.finvibe.gamification.boot.security.model.AuthenticatedUser;
 import depth.finvibe.gamification.boot.security.model.Requester;
+import depth.finvibe.gamification.boot.security.model.UserRole;
+import depth.finvibe.gamification.modules.gamification.domain.error.GamificationErrorCode;
 import depth.finvibe.gamification.modules.gamification.application.port.in.XpQueryUseCase;
+import depth.finvibe.gamification.modules.gamification.application.port.in.XpCommandUseCase;
 import depth.finvibe.gamification.modules.gamification.dto.XpDto;
+import depth.finvibe.gamification.shared.error.DomainException;
 
 @Tag(name = "경험치", description = "경험치 및 랭킹 조회 API")
 @RestController
@@ -21,7 +29,18 @@ import depth.finvibe.gamification.modules.gamification.dto.XpDto;
 @RequestMapping("/xp")
 public class XpController {
 
+    private final XpCommandUseCase xpCommandUseCase;
     private final XpQueryUseCase xpQueryUseCase;
+
+    @Operation(summary = "관리자 수동 XP 지급", description = "관리자가 특정 사용자에게 XP를 수동 지급합니다", hidden = true)
+    @PostMapping("/admin/users/{userId}/grant")
+    public void grantUserXpByAdmin(
+            @PathVariable UUID userId,
+            @RequestBody XpDto.GrantXpRequest request,
+            @AuthenticatedUser Requester requester) {
+        validateAdmin(requester);
+        xpCommandUseCase.grantUserXp(userId, request.getValue(), request.getReason());
+    }
 
     @Operation(summary = "내 경험치 조회", description = "인증된 사용자의 경험치 정보를 반환합니다")
     @GetMapping("/me")
@@ -46,5 +65,11 @@ public class XpController {
     @GetMapping("/users/ranking")
     public List<XpDto.UserRankingResponse> getUserXpRanking() {
         return xpQueryUseCase.getUserXpRanking();
+    }
+
+    private void validateAdmin(Requester requester) {
+        if (requester.getRole() != UserRole.ADMIN) {
+            throw new DomainException(GamificationErrorCode.FORBIDDEN_ACCESS);
+        }
     }
 }
