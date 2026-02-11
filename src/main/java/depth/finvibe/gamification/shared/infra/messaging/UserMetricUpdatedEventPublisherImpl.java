@@ -1,12 +1,12 @@
-package depth.finvibe.gamification.modules.gamification.infra.messaging;
+package depth.finvibe.gamification.shared.infra.messaging;
 
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import depth.finvibe.gamification.modules.gamification.application.port.out.UserMetricUpdatedEventPublisher;
 import depth.finvibe.gamification.shared.dto.UserMetricUpdatedEvent;
+import depth.finvibe.gamification.shared.messaging.UserMetricUpdatedEventPublisher;
 
 @Component
 @RequiredArgsConstructor

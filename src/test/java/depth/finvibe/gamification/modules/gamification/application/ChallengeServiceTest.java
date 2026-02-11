@@ -17,7 +17,7 @@ import depth.finvibe.gamification.modules.gamification.application.port.out.Chal
 import depth.finvibe.gamification.modules.gamification.application.port.out.MetricRepository;
 import depth.finvibe.gamification.modules.gamification.application.port.out.PersonalChallengeRepository;
 import depth.finvibe.gamification.modules.gamification.application.port.out.PersonalChallengeRewardRepository;
-import depth.finvibe.gamification.modules.gamification.application.port.out.UserMetricUpdatedEventPublisher;
+import depth.finvibe.gamification.shared.messaging.UserMetricUpdatedEventPublisher;
 import depth.finvibe.gamification.modules.gamification.application.port.out.XpRewardEventPublisher;
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallenge;
 import depth.finvibe.gamification.modules.gamification.domain.PersonalChallengeReward;

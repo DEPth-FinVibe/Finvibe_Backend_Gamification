@@ -1,4 +1,4 @@
-package depth.finvibe.gamification.modules.gamification.application.port.out;
+package depth.finvibe.gamification.shared.messaging;
 
 import depth.finvibe.gamification.shared.dto.UserMetricUpdatedEvent;
 

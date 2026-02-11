@@ -7,6 +7,7 @@ import depth.finvibe.gamification.modules.study.application.port.in.CourseQueryU
 import depth.finvibe.gamification.modules.study.application.port.in.LessonQueryUseCase;
 import depth.finvibe.gamification.modules.study.application.port.out.*;
 import depth.finvibe.gamification.modules.study.domain.*;
+import depth.finvibe.gamification.shared.messaging.UserMetricUpdatedEventPublisher;
 import depth.finvibe.gamification.modules.study.dto.CourseDto;
 import depth.finvibe.gamification.modules.study.dto.GeneratorDto;
 import depth.finvibe.gamification.modules.study.dto.LessonCompletionDto;
