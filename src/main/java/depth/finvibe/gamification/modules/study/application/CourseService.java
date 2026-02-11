@@ -193,7 +193,7 @@ public class CourseService implements CourseCommandUseCase, CourseQueryUseCase, 
                 XpRewardEvent.of(
                         requester.getUuid().toString(),
                         lesson.getTitle() + " 수강 완료" ,
-                        100L
+                        50L
                 )
         );
 
