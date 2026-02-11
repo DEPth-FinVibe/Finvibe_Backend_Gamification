@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +14,12 @@ import depth.finvibe.gamification.modules.gamification.domain.UserXpRankingSnaps
 import depth.finvibe.gamification.modules.gamification.domain.enums.RankingPeriod;
 
 @Repository
-@RequiredArgsConstructor
 public class UserXpRankingSnapshotRepositoryImpl implements UserXpRankingSnapshotRepository {
     private final UserXpRankingSnapshotJpaRepository userXpRankingSnapshotJpaRepository;
+
+    public UserXpRankingSnapshotRepositoryImpl(UserXpRankingSnapshotJpaRepository userXpRankingSnapshotJpaRepository) {
+        this.userXpRankingSnapshotJpaRepository = userXpRankingSnapshotJpaRepository;
+    }
 
     @Override
     @Transactional
@@ -29,7 +30,7 @@ public class UserXpRankingSnapshotRepositoryImpl implements UserXpRankingSnapsho
         userXpRankingSnapshotJpaRepository.deleteByPeriodTypeAndPeriodStartDate(periodType, periodStartDate);
 
         if (!snapshots.isEmpty()) {
-            userXpRankingSnapshotJpaRepository.saveAll(snapshots);
+            userXpRankingSnapshotJpaRepository.saveAllAndFlush(snapshots);
         }
     }
 

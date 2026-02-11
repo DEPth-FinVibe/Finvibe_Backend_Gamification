@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.time.LocalDate;
@@ -310,12 +311,14 @@ public class XpService implements XpCommandUseCase, XpQueryUseCase {
         List<UserXpAwardRepository.UserPeriodXp> rankedUsers = userXpAwardRepository
                 .findUserPeriodXpRankingBetween(currentStart, currentEnd, Integer.MAX_VALUE);
 
-        if (rankedUsers.isEmpty()) {
+        List<UserXpAwardRepository.UserPeriodXp> uniqueRankedUsers = deduplicateRankedUsers(rankedUsers, rankingPeriod, currentStart.toLocalDate());
+
+        if (uniqueRankedUsers.isEmpty()) {
             userXpRankingSnapshotRepository.replaceSnapshots(rankingPeriod, currentStart.toLocalDate(), List.of());
             return;
         }
 
-        List<UUID> userIds = rankedUsers.stream()
+        List<UUID> userIds = uniqueRankedUsers.stream()
                 .map(UserXpAwardRepository.UserPeriodXp::userId)
                 .toList();
 
@@ -329,9 +332,9 @@ public class XpService implements XpCommandUseCase, XpQueryUseCase {
             userXpMap.put(userXp.getUserId(), userXp);
         }
 
-        List<UserXpRankingSnapshot> snapshots = new ArrayList<>(rankedUsers.size());
-        for (int i = 0; i < rankedUsers.size(); i++) {
-            UserXpAwardRepository.UserPeriodXp rankedUser = rankedUsers.get(i);
+        List<UserXpRankingSnapshot> snapshots = new ArrayList<>(uniqueRankedUsers.size());
+        for (int i = 0; i < uniqueRankedUsers.size(); i++) {
+            UserXpAwardRepository.UserPeriodXp rankedUser = uniqueRankedUsers.get(i);
             UserXp userXp = userXpMap.get(rankedUser.userId());
             long previousPeriodXp = previousXpMap.getOrDefault(rankedUser.userId(), 0L);
 
@@ -350,5 +353,27 @@ public class XpService implements XpCommandUseCase, XpQueryUseCase {
         }
 
         userXpRankingSnapshotRepository.replaceSnapshots(rankingPeriod, currentStart.toLocalDate(), snapshots);
+    }
+
+    private List<UserXpAwardRepository.UserPeriodXp> deduplicateRankedUsers(
+            List<UserXpAwardRepository.UserPeriodXp> rankedUsers,
+            RankingPeriod rankingPeriod,
+            LocalDate periodStartDate) {
+        LinkedHashMap<UUID, UserXpAwardRepository.UserPeriodXp> deduplicated = new LinkedHashMap<>();
+
+        for (UserXpAwardRepository.UserPeriodXp rankedUser : rankedUsers) {
+            deduplicated.putIfAbsent(rankedUser.userId(), rankedUser);
+        }
+
+        if (deduplicated.size() < rankedUsers.size()) {
+            log.warn(
+                    "랭킹 스냅샷 집계 중 사용자 중복 감지 - 기간: {}, 시작일: {}, 입력건수: {}, 중복제거후: {}",
+                    rankingPeriod,
+                    periodStartDate,
+                    rankedUsers.size(),
+                    deduplicated.size());
+        }
+
+        return List.copyOf(deduplicated.values());
     }
 }
