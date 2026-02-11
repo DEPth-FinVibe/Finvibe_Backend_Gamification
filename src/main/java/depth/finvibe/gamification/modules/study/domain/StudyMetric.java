@@ -30,7 +30,7 @@ public class StudyMetric {
                 .userId(userId)
                 .xpEarned(0L)
                 .timeSpentMinutes(0L)
-                .lastPingAt(Instant.now())
+                .lastPingAt(null)
                 .build();
     }
 
