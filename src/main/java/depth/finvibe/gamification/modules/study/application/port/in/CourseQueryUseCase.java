@@ -8,6 +8,5 @@ import java.util.List;
 public interface CourseQueryUseCase {
     List<String> getRecommendedKeywords(Requester requester);
     CourseDto.ContentPreviewResponse previewCourseContent(CourseDto.CreateRequest request, Requester requester);
-    void completeLesson(Long lessonId, Requester requester);
     List<CourseDto.MyCourseResponse> getMyCourses(Requester requester);
 }

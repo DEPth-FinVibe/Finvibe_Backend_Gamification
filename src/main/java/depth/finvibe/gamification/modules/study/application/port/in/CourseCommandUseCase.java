@@ -5,4 +5,5 @@ import depth.finvibe.gamification.modules.study.dto.CourseDto;
 
 public interface CourseCommandUseCase {
     void createCourse(CourseDto.CreateRequest request, Requester requester);
+    void completeLesson(Long lessonId, Requester requester);
 }

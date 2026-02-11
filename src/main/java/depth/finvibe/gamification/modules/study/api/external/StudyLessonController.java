@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import depth.finvibe.gamification.boot.security.model.AuthenticatedUser;
 import depth.finvibe.gamification.boot.security.model.Requester;
-import depth.finvibe.gamification.modules.study.application.port.in.CourseQueryUseCase;
+import depth.finvibe.gamification.modules.study.application.port.in.CourseCommandUseCase;
 import depth.finvibe.gamification.modules.study.application.port.in.LessonQueryUseCase;
 import depth.finvibe.gamification.modules.study.dto.LessonCompletionDto;
 import depth.finvibe.gamification.modules.study.dto.LessonDto;
@@ -25,7 +25,7 @@ import depth.finvibe.gamification.modules.study.dto.LessonDto;
 public class StudyLessonController {
 
     private final LessonQueryUseCase lessonQueryUseCase;
-    private final CourseQueryUseCase courseQueryUseCase;
+    private final CourseCommandUseCase courseCommandUseCase;
 
     @Operation(summary = "레슨 상세 조회", description = "레슨 상세와 완료 여부를 조회합니다")
     @GetMapping("/{lessonId}")
@@ -42,7 +42,7 @@ public class StudyLessonController {
             @PathVariable Long lessonId,
             @AuthenticatedUser Requester requester
     ) {
-        courseQueryUseCase.completeLesson(lessonId, requester);
+        courseCommandUseCase.completeLesson(lessonId, requester);
     }
 
     @Operation(summary = "월별 레슨 수료 이력 조회", description = "인증된 사용자의 월별 레슨 수료 목록을 조회합니다")
