@@ -26,6 +26,7 @@ import depth.finvibe.gamification.modules.gamification.domain.SquadXp;
 import depth.finvibe.gamification.modules.gamification.domain.UserSquad;
 import depth.finvibe.gamification.modules.gamification.domain.UserXp;
 import depth.finvibe.gamification.modules.gamification.domain.UserXpAward;
+import depth.finvibe.gamification.modules.gamification.domain.enums.RankingPeriod;
 import depth.finvibe.gamification.modules.gamification.dto.XpDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -220,7 +221,7 @@ class XpServiceTest {
                         UserXp.builder().userId(userB).nickname("유저B").totalXp(2200L).build()
                 ));
 
-        List<XpDto.UserRankingResponse> result = xpService.getUserXpRanking();
+        List<XpDto.UserRankingResponse> result = xpService.getUserXpRanking(RankingPeriod.MONTHLY);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getUserId()).isEqualTo(userA);
@@ -237,7 +238,7 @@ class XpServiceTest {
         when(userXpAwardRepository.findUserPeriodXpRankingBetween(any(), any(), eq(100)))
                 .thenReturn(List.of());
 
-        List<XpDto.UserRankingResponse> result = xpService.getUserXpRanking();
+        List<XpDto.UserRankingResponse> result = xpService.getUserXpRanking(RankingPeriod.MONTHLY);
 
         assertThat(result).isEmpty();
     }

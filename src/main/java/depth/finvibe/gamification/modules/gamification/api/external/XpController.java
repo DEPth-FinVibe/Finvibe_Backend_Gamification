@@ -6,17 +6,20 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import depth.finvibe.gamification.boot.security.model.AuthenticatedUser;
 import depth.finvibe.gamification.boot.security.model.Requester;
 import depth.finvibe.gamification.boot.security.model.UserRole;
+import depth.finvibe.gamification.modules.gamification.domain.enums.RankingPeriod;
 import depth.finvibe.gamification.modules.gamification.domain.error.GamificationErrorCode;
 import depth.finvibe.gamification.modules.gamification.application.port.in.XpQueryUseCase;
 import depth.finvibe.gamification.modules.gamification.application.port.in.XpCommandUseCase;
@@ -61,10 +64,12 @@ public class XpController {
         return xpQueryUseCase.getSquadContributionRanking(requester.getUuid());
     }
 
-    @Operation(summary = "전체 사용자 XP 랭킹 조회", description = "이번달 획득 XP 합산 기준 전체 사용자 Top 100 랭킹을 조회합니다")
+    @Operation(summary = "전체 사용자 XP 랭킹 조회", description = "지정된 기간 동안 획득한 XP 합산 기준 전체 사용자 Top 100 랭킹을 조회합니다")
     @GetMapping("/users/ranking")
-    public List<XpDto.UserRankingResponse> getUserXpRanking() {
-        return xpQueryUseCase.getUserXpRanking();
+    public List<XpDto.UserRankingResponse> getUserXpRanking(
+            @Parameter(description = "랭킹 기간 (DAILY, WEEKLY, MONTHLY)", example = "MONTHLY")
+            @RequestParam(defaultValue = "MONTHLY") RankingPeriod period) {
+        return xpQueryUseCase.getUserXpRanking(period);
     }
 
     private void validateAdmin(Requester requester) {

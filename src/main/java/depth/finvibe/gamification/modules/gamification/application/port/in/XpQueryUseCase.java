@@ -33,9 +33,10 @@ public interface XpQueryUseCase {
 
     /**
      * 전체 사용자 XP 랭킹을 조회합니다.
-     * 이번달 획득 XP 합산 기준 Top 100을 반환합니다.
+     * 지정된 기간 동안 획득한 XP 합산 기준 Top 100을 반환합니다.
      *
+     * @param period 랭킹 기간 (DAILY, WEEKLY, MONTHLY)
      * @return 사용자 XP 랭킹 목록
      */
-    List<XpDto.UserRankingResponse> getUserXpRanking();
+    List<XpDto.UserRankingResponse> getUserXpRanking(depth.finvibe.gamification.modules.gamification.domain.enums.RankingPeriod period);
 }

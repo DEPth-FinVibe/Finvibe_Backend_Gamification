@@ -129,13 +129,13 @@ public class XpService implements XpCommandUseCase, XpQueryUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public List<XpDto.UserRankingResponse> getUserXpRanking() {
+    public List<XpDto.UserRankingResponse> getUserXpRanking(RankingPeriod period) {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-        LocalDateTime currentMonthStart = now.toLocalDate().withDayOfMonth(1).atStartOfDay();
-        LocalDateTime nextMonthStart = currentMonthStart.plusMonths(1);
+        LocalDateTime currentPeriodStart = getCurrentStart(period, now);
+        LocalDateTime currentPeriodEnd = getCurrentEnd(period, currentPeriodStart);
 
         List<UserXpAwardRepository.UserPeriodXp> rankedUsers = userXpAwardRepository
-                .findUserPeriodXpRankingBetween(currentMonthStart, nextMonthStart, 100);
+                .findUserPeriodXpRankingBetween(currentPeriodStart, currentPeriodEnd, 100);
 
         if (rankedUsers.isEmpty()) {
             return List.of();
@@ -264,24 +264,42 @@ public class XpService implements XpCommandUseCase, XpQueryUseCase {
 
     private LocalDateTime getCurrentStart(RankingPeriod rankingPeriod, LocalDateTime now) {
         LocalDate today = now.toLocalDate();
-        if (rankingPeriod == RankingPeriod.WEEKLY) {
-            return today.minusDays(today.getDayOfWeek().getValue() - 1L).atStartOfDay();
+        switch (rankingPeriod) {
+            case DAILY:
+                return today.atStartOfDay();
+            case WEEKLY:
+                return today.minusDays(today.getDayOfWeek().getValue() - 1L).atStartOfDay();
+            case MONTHLY:
+                return today.withDayOfMonth(1).atStartOfDay();
+            default:
+                throw new IllegalArgumentException("지원하지 않는 랭킹 기간: " + rankingPeriod);
         }
-        return today.withDayOfMonth(1).atStartOfDay();
     }
 
     private LocalDateTime getCurrentEnd(RankingPeriod rankingPeriod, LocalDateTime currentStart) {
-        if (rankingPeriod == RankingPeriod.WEEKLY) {
-            return currentStart.plusWeeks(1);
+        switch (rankingPeriod) {
+            case DAILY:
+                return currentStart.plusDays(1);
+            case WEEKLY:
+                return currentStart.plusWeeks(1);
+            case MONTHLY:
+                return currentStart.plusMonths(1);
+            default:
+                throw new IllegalArgumentException("지원하지 않는 랭킹 기간: " + rankingPeriod);
         }
-        return currentStart.plusMonths(1);
     }
 
     private LocalDateTime getPreviousStart(RankingPeriod rankingPeriod, LocalDateTime currentStart) {
-        if (rankingPeriod == RankingPeriod.WEEKLY) {
-            return currentStart.minusWeeks(1);
+        switch (rankingPeriod) {
+            case DAILY:
+                return currentStart.minusDays(1);
+            case WEEKLY:
+                return currentStart.minusWeeks(1);
+            case MONTHLY:
+                return currentStart.minusMonths(1);
+            default:
+                throw new IllegalArgumentException("지원하지 않는 랭킹 기간: " + rankingPeriod);
         }
-        return currentStart.minusMonths(1);
     }
 
     private void refreshUserRankingSnapshotByPeriod(RankingPeriod rankingPeriod, LocalDateTime now) {
